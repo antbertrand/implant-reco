@@ -9,7 +9,7 @@ import http.client, urllib.request, urllib.parse, urllib.error, base64, json
 
 from imutils.object_detection import non_max_suppression
 
-EAST_NET = cv2.dnn.readNet("../data/east.pb")
+EAST_NET = cv2.dnn.readNet("./east.pb")
 
 class DetectionInstance(object):
     def __init__(self, frame):
