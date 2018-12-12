@@ -4,25 +4,29 @@ import cv2
 import time
 import uuid
 
-class Image:
+class Image(object):
 
-    def __init__(self):
+    def __init__(self, img):
+        self.img = img
         self.path = "./"
 
     def openImage(self, filename):
         img = cv2.imread(filename, cv2.COLOR_BGR2GRAY)
         return img
 
-    def saveImage(self, resizeImg, path="./"):
-        cv2.imwrite(str(path) + str(uuid.uuid4().hex) + ".jpg",resizeImg)
+    def saveImage(self):
+        cv2.imwrite(str(self.path) + str(uuid.uuid4().hex) + ".jpg", self.img)
         return "Image Saved"
 
     def generateUUID():
         generated_uuid = uuid.uuid4().hex
         return generated_uuid
 
-    def addSerialNumber(self, image, serialNumber):
+    def addSerialNumber(self, serialNumber):
 
+        if len(self.img.shape) < 3 :
+            self.img = cv2.cvtColor(self.img, cv2.COLOR_GRAY2BGR)
+            
         font                   = cv2.FONT_HERSHEY_SIMPLEX
         bottomLeftCornerOfText = (10,100)
         fontScale              = 2
@@ -30,14 +34,14 @@ class Image:
         lineType               = 3
         i = 0 
         for serial in serialNumber:
-            cv2.putText(image,serial,
+            cv2.putText(self.img,serial,
             (10,50+(i*60)),
             font,
             fontScale,
             fontColor,
             lineType)
             i+=1
-        return image
+        return self.img
 
 # image = Image()
 # img  = image.openImage("../data/images/azureok.jpg")

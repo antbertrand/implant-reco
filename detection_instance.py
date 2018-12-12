@@ -30,16 +30,21 @@ class DetectionInstance(object):
     def get_chip_area(self):
         """ Search for a circle to get the coordinates of the chip
         """
+        
         img = imutils.resize(self.frame, height=600)
         xratio = self.frame.shape[1]/float(img.shape[1])
         yratio = self.frame.shape[0]/float(img.shape[0])
 
         circles = get_circles(img)
+        real_circle = None
 
         for circle in circles[0, :]:
             if circle[2] > 120:
                 continue
             real_circle = circle.copy()
+
+        if real_circle is None :
+            return False
 
         crop_coords = (
             max(0, real_circle[1]-self.chip_crop_size[0]//2)*yratio,

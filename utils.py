@@ -8,6 +8,7 @@ import requests
 import cv2
 import numpy as np
 import http.client
+import logging
 
 import imutils
 from imutils.object_detection import non_max_suppression
@@ -117,6 +118,7 @@ def get_circles(image):
 def microsoft_detection_text(image_data):
     """ Send a request to microsoft text detection to read the serial number
     """
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
     headers = {
         # Request headers
         'Content-Type': 'application/octet-stream',
