@@ -5,7 +5,7 @@ import cv2
 import time
 import uuid
 
-class Camera:
+class Camera(object):
 
     def __init__(self):
         self.last_timestamp = 0
@@ -30,9 +30,11 @@ class Camera:
         if grabResult.GrabSucceeded():
             currImg = grabResult.Array
             resizeImg = cv2.resize(currImg, (1920, 1080))
+            #resizeImg = resizeImg.astype(np.uint8)
+
 
         grabResult.Release()
-        cv2.imshow('Video', resizeImg)
+        #cv2.imshow('Video', resizeImg)
         #cv2.waitKey(1000)
         return currImg, resizeImg
 

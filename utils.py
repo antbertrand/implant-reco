@@ -107,8 +107,12 @@ def detect_text(image, network, degree):
 def get_circles(image):
     """ Get the circles coordinates of an image
     """
+    print(image.shape)
+
+    import pdb; pdb.set_trace()
+
     if len(image.shape) > 2:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
     circ = cv2.HoughCircles(image, cv2.HOUGH_GRADIENT, 1.5, 80, minRadius=40, maxRadius=500)
     if circ is not None:

@@ -1,5 +1,5 @@
 # coding: utf-8
-#import camera
+import camera
 import detection_instance
 import image
 import gui
@@ -15,10 +15,20 @@ def main():
 
     FORMAT = '%(asctime)s %(message)s'
     logging.basicConfig(filename='./activity.log', format=FORMAT, level=logging.DEBUG)
+    cam = camera.Camera()
+    logging.info("Camera detected")
+    #cam.saveConf()
+    #logging.info("Camera configuration saved")
+    cam.loadConf()
+    logging.info("Camera configuration loaded")
 
     while True:
+        hightimg, img = cam.grabbingImage()
         start = time.time()
-        img = cv2.imread(os.path.join("./", '181206_115427_0000000005_CAM1_OK.bmp'))
+        print(img.shape)
+        img2 = cv2.imread(os.path.join("./", '181206_115427_0000000005_CAM1_OK.bmp'))
+        print (img2.dtype)
+        print (img.dtype)
         #img = cv2.imread(os.path.join("./", 'CAM1_6.bmp'))
         #cam = camera.Camera()
         detect = detection_instance.DetectionInstance(img)
