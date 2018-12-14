@@ -8,6 +8,7 @@ import requests
 import cv2
 import numpy as np
 import http.client
+import logging
 
 import imutils
 from imutils.object_detection import non_max_suppression
@@ -106,8 +107,12 @@ def detect_text(image, network, degree):
 def get_circles(image, param, minr=140, maxr=0):
     """ Get the circles coordinates of an image
     """
+    print(image.shape)
+
+    import pdb; pdb.set_trace()
+
     if len(image.shape) > 2:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
     circ = cv2.HoughCircles(image, cv2.HOUGH_GRADIENT, param, 80, minRadius=minr, maxRadius=maxr)
     if circ is not None:
@@ -117,6 +122,7 @@ def get_circles(image, param, minr=140, maxr=0):
 def microsoft_detection_text(image_data):
     """ Send a request to microsoft text detection to read the serial number
     """
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
     headers = {
         # Request headers
         'Content-Type': 'application/octet-stream',
