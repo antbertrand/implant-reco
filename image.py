@@ -14,12 +14,15 @@ class Image(object):
         img = cv2.imread(filename, cv2.COLOR_BGR2GRAY)
         return img
 
-    def saveImage(self):
-        cv2.imwrite(str(self.path) + str(uuid.uuid4().hex) + ".jpg", self.img)
-        return "Image Saved"
+    def saveImage(self, currImg, resizeImg):
+        uuid = Image.generateUUID()
+        #Image.fromarray(resizeImg).save("./" + str(uuid.uuid4().hex) + ".tiff")
+        cv2.imwrite( "./" + uuid + "resized" + ".png", cv2.cvtColor(resizeImg, cv2.COLOR_RGB2BGR) )
+        cv2.imwrite( "./" + uuid + "full" + ".png", cv2.cvtColor(currImg, cv2.COLOR_RGB2BGR) )
+        return "Images Saved"
 
     def generateUUID():
-        generated_uuid = uuid.uuid4().hex
+        generated_uuid = str(uuid.uuid4().hex)
         return generated_uuid
 
     def addSerialNumber(self, serialNumber):

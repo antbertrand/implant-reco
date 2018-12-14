@@ -107,9 +107,6 @@ def detect_text(image, network, degree):
 def get_circles(image, param, minr=140, maxr=0):
     """ Get the circles coordinates of an image
     """
-    print(image.shape)
-
-    import pdb; pdb.set_trace()
 
     if len(image.shape) > 2:
         image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)

@@ -8,6 +8,7 @@ import os
 import imutils
 import time
 import logging
+from keyboard import Keyboard
 
 #LOGGER = logging.getLogger(__name__)
 
@@ -19,19 +20,19 @@ def main():
     logging.info("Camera detected")
     #cam.saveConf()
     #logging.info("Camera configuration saved")
-    cam.loadConf()
-    logging.info("Camera configuration loaded")
+    #cam.loadConf()
+    #logging.info("Camera configuration loaded")
+    k = Keyboard()
+    k.openAndListen()
 
     while True:
-        hightimg, img = cam.grabbingImage()
+        fullimg, img = cam.grabbingImage()
         start = time.time()
-        print(img.shape)
-        img2 = cv2.imread(os.path.join("./", '181206_115427_0000000005_CAM1_OK.bmp'))
-        print (img2.dtype)
-        print (img.dtype)
+        #print(img.shape)
+        img2 = cv2.imread(os.path.join("./", '181213_102435_0000000008_CAM1_OK.bmp'))
         #img = cv2.imread(os.path.join("./", 'CAM1_6.bmp'))
-        #cam = camera.Camera()
-        detect = detection_instance.DetectionInstance(img)
+
+        detect = detection_instance.DetectionInstance(img2)
         print('init: %0.3f'% (time.time()-start))
         #image = Image(image)
         #gui = GUI(image)
@@ -45,6 +46,10 @@ def main():
             results = detect.text
             logging.info("Text read : %s"% results)
             print (results)
+            logging.info("Keystrokes : %s"% results)
+            for r in results:
+            	k.send(r)
+            	k.send("	")
 
             img = imutils.rotate(detect.chip, detect.orientation_used)
             print (img.shape)
@@ -52,20 +57,17 @@ def main():
             computeResults = image.Image(img)
             img = computeResults.addSerialNumber(results)
             logging.info("Serial Number written")
-            computeResults.saveImage()
+            #cam.saveImage(fullimg, img)
+            computeResults.saveImage(fullimg, img)
             logging.info("Image saved")
         else :
             logging.info("Circle not found")
-
-    #dispResults = gui.GUI(img)
-    #img = dispResults.convertToTkImage()
-    #dispResults.displayImage()
+            time.sleep(1)
+        #dispResults = gui.GUI(img)
+        #img = dispResults.convertToTkImage(img)
+        #dispResults.displayImage()
     #dispResults = image.addSerialNumber(img, results)
     #image.saveImage(img)
-
-    #cam.loadConf()
-    #currImg, resizeImg = cam.grabbingImage()
-    #cam.showImage(resizeImg)
 
 if __name__ == '__main__':
     main()

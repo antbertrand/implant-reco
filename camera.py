@@ -14,6 +14,7 @@ class Camera(object):
         self.first_device = py.TlFactory.GetInstance().CreateFirstDevice()
         self.instant_camera = py.InstantCamera(self.first_device)
         self.instant_camera.Open()
+        self.instant_camera.PixelFormat = 'RGB8'
 
     def loadConf(self):
         py.FeaturePersistence.Load(self.conf, self.instant_camera.GetNodeMap())
@@ -34,25 +35,29 @@ class Camera(object):
 
 
         grabResult.Release()
+        self.instant_camera.StopGrabbing()
         #cv2.imshow('Video', resizeImg)
         #cv2.waitKey(1000)
         return currImg, resizeImg
 
-    def saveImage(self, resizeImg):
-        cv2.imwrite( "./" + str(uuid.uuid4().hex) + ".jpg", resizeImg )
-        return "Image Saved"
+    def saveImage(self, currImg, resizeImg):
+        uuid = Camera.generateUUID()
+        #Image.fromarray(resizeImg).save("./" + str(uuid.uuid4().hex) + ".tiff")
+        cv2.imwrite( "./" + uuid + "resized" + ".png", cv2.cvtColor(resizeImg, cv2.COLOR_RGB2BGR) )
+        cv2.imwrite( "./" + uuid + "full" + ".png", cv2.cvtColor(currImg, cv2.COLOR_RGB2BGR) )
+        return "Images Saved"
 
     def generateUUID():
-        generated_uuid = uuid.uuid4().hex
+        generated_uuid = str(uuid.uuid4().hex)
         return generated_uuid
 
     def showImage(self):
         cv2.imshow('Video', resizeImg)
         cv2.waitKey(10000)
 
-# image = Camera()
-# img1, img2 = image.grabbingImage()
-# print (len(img1))
-# print (len(img2))
-# image.saveImage(img2)
+#image = Camera()
+#img1, img2 = image.grabbingImage()
+#print (len(img1))
+#print (len(img2))
+#image.saveImage(img1, img2)
 

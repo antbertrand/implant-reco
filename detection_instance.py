@@ -41,8 +41,11 @@ class DetectionInstance(object):
         xratio = self.frame.shape[1]/float(img.shape[1])
         yratio = self.frame.shape[0]/float(img.shape[0])
 
-        circles = get_circles(img)
+        circles = get_circles(img, 1.1)
         real_circle = None
+
+        if circles is None:
+            return False
 
         for circle in circles[0, :]:
             # if circle[2] > 120:

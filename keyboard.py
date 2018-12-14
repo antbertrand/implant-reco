@@ -32,18 +32,18 @@ class Keyboard(Thread):
         print("Connected.")
 
         # Write data
-        self.ser.write("Aloha")
-        self.ser.write("\n")
+        #self.ser.write(str.encode("COUCOU"))
+        #self.ser.write(str.encode("\n"))
 
-        while self.is_running:
-            try:
-                received = self.ser.readline()
-                if len(received)> 0:
-                    print "=> %s" % received.replace('\n', '')
-            except:
-                print "Serial link closed"
-                break
-        self.ser.close()
+        #while self.is_running:
+        #    try:
+        #        received = self.ser.readline()
+        #        if len(received)> 0:
+        #            print ("=> %s" % received.replace('\n', ''))
+        #    except:
+        #        print ("Serial link closed")
+        #        break
+        #self.ser.close()
 
     def stopOnJoin(self):
         self.is_running = False
@@ -51,5 +51,5 @@ class Keyboard(Thread):
         self.ser.close()
 
     def send(self, data):
-        self.ser.write(data)
-        self.ser.write("\n")
+        self.ser.write(str.encode(data))
+        #self.ser.write(str.encode("\n"))

@@ -1,6 +1,0 @@
-from keyboard import Keyboard
-k = Keyboard()
-k.start()
-k.send("Test message")
-k.stopOnJoin()
-k.join()
