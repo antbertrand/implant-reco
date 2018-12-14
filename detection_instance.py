@@ -15,6 +15,12 @@ from utils import detect_text, get_circles, microsoft_detection_text
 
 EAST_NET = cv2.dnn.readNet("./east.pb")
 
+def frange(start, stop, step):
+    i = start
+    while i < stop:
+        yield i
+        i += step
+
 class DetectionInstance(object):
     """ A class to detect the implant chip and read the serial number
     """
@@ -34,11 +40,12 @@ class DetectionInstance(object):
         xratio = self.frame.shape[1]/float(img.shape[1])
         yratio = self.frame.shape[0]/float(img.shape[0])
 
-        circles = get_circles(img)
+        circles = get_circles(img, 1.1)
+
 
         for circle in circles[0, :]:
-            if circle[2] > 120:
-                continue
+            # if circle[2] > 120:
+            #     continue
             real_circle = circle.copy()
 
         crop_coords = (
@@ -52,6 +59,35 @@ class DetectionInstance(object):
             int(crop_coords[0]):int(crop_coords[1]),
             int(crop_coords[2]):int(crop_coords[3])
         ]
+
+        img = imutils.resize(image, height=600)
+        xratio = image.shape[1]/img.shape[1]
+        yratio = image.shape[0]/img.shape[0]
+
+        #img = improve_contrast(img)
+        for i in frange(0.8, 3.0, 0.1):
+            circles = get_circles(img, i, maxr=200)
+            #print('test: ', type(circles))
+            if circles is not None and (circles > 0).any():
+                break
+
+        if circles is not None:
+            for circle in circles[0,:]:
+                #if circle[2]>120:
+                #    continue
+                cv2.circle(img, (circle[0], circle[1]), circle[2], (0,255,0), 2)
+                cv2.circle(img, (circle[0], circle[1]), 2, (0,0,255), 3)
+                real_circle = circle.copy()
+
+        else:
+            print("Cannot find circles")
+
+        cropSize = (400, 400)
+        cropCoords = (max(0, real_circle[1]-cropSize[0]//2)*yratio,min(img.shape[0], real_circle[1]+cropSize[0]//2)*yratio,
+                      max(0, real_circle[0]-cropSize[1]//2)*xratio,min(img.shape[1], real_circle[0]+cropSize[1]//2)*xratio)
+        #print(cropCoords)
+        image = image[int(cropCoords[0]):int(cropCoords[1]), int(cropCoords[2]):int(cropCoords[3])]
+
 
         if len(image.shape) > 2:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -92,7 +128,7 @@ class DetectionInstance(object):
                     text = []
                 if flag_aa:
                     text.append(line['text'])
-            if len(text) == 3:
+            if len(text) >= 3:
                 self.text = text
                 self.orientation_used = degree
                 break

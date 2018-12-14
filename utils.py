@@ -50,7 +50,7 @@ def detect_text(image, network, degree):
     max_text_angle = 0.15
 
     # resize the image and grab the new image dimensions
-    image = cv2.resize(image, (192, 192))
+    image = cv2.resize(image, (224, 224))
     width_ratio = old_shape[1] / float(image.shape[1])
     height_ratio = old_shape[0] / float(image.shape[0])
 
@@ -103,13 +103,13 @@ def detect_text(image, network, degree):
 
     return boxes
 
-def get_circles(image):
+def get_circles(image, param, minr=140, maxr=0):
     """ Get the circles coordinates of an image
     """
     if len(image.shape) > 2:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    circ = cv2.HoughCircles(image, cv2.HOUGH_GRADIENT, 1.5, 80, minRadius=40, maxRadius=500)
+    circ = cv2.HoughCircles(image, cv2.HOUGH_GRADIENT, param, 80, minRadius=minr, maxRadius=maxr)
     if circ is not None:
         circ = np.uint16(np.around(circ))
     return circ
