@@ -22,12 +22,12 @@ class Keyboard(Thread):
                 print("Serial link turning off.")
     
     def openAndListen(self):
-        if not os.access(self.serial_device, os.R_OK):
+        if not self.isAvailable():
             print("Device not connected")
             return
 
         print("Connecting to serial...")
-        self.ser = serial.Serial(self.serial_device, 9600, timeout=10)
+        self.connect()
         time.sleep(1)
         print("Connected.")
 
@@ -45,11 +45,29 @@ class Keyboard(Thread):
         #        break
         #self.ser.close()
 
+    def isAvailable(self):
+        return os.access(self.serial_device, os.R_OK)
+
+    def connect(self):
+        self.ser = serial.Serial(self.serial_device, 9600, timeout=10)
+
     def stopOnJoin(self):
         self.is_running = False
         self.ser.flush()
         self.ser.close()
 
     def send(self, data):
+        if not self.isAvailable():
+            print("Trying to send to disconnected device.")
+            self.ser = None
+            while self.ser == None:
+                print("Reconnecting...")
+                try:
+                    self.connect()
+                except:
+                    print("Failed to reconnect for now")
+                time.sleep(1)
+            print("Reconnected.")
+            time.sleep(3)
         self.ser.write(str.encode(data))
         #self.ser.write(str.encode("\n"))
