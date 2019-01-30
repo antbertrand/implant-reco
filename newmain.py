@@ -8,6 +8,7 @@ import imutils
 import time
 import logging
 from keyboard import Keyboard
+import yolo
 
 
 import numpy as np
@@ -22,6 +23,8 @@ class Main(Thread):
         Thread.__init__(self)
 
         self.ui = ui
+
+        self.yolo = yolo.YOLO()
 
         FORMAT = '%(asctime)s %(message)s'
         logging.basicConfig(filename='./activity.log', format=FORMAT, level=logging.DEBUG)
@@ -39,6 +42,7 @@ class Main(Thread):
         while True:
             fullimg, img = self.cam.grabbingImage()
             start = time.time()
+            self.yolo.detect_image(img)
             #print(img.shape)
             #img2 = cv2.imread(os.path.join("./", '181213_102435_0000000008_CAM1_OK.bmp'))
             #img = cv2.imread(os.path.join("./", 'CAM1_6.bmp'))
