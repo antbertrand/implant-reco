@@ -27,10 +27,10 @@ class Main(Thread):
         logging.basicConfig(filename='./activity.log', format=FORMAT, level=logging.DEBUG)
         self.cam = camera.Camera()
         logging.info("Camera detected")
-        #cam.saveConf()
+        #self.cam.saveConf()
         #logging.info("Camera configuration saved")
-        #cam.loadConf()
-        #logging.info("Camera configuration loaded")
+        self.cam.loadConf()
+        logging.info("Camera configuration loaded")
         self.keyboard = Keyboard()
         self.keyboard.openAndListen()
  
@@ -40,10 +40,12 @@ class Main(Thread):
             fullimg, img = self.cam.grabbingImage()
             start = time.time()
             #print(img.shape)
-            img2 = cv2.imread(os.path.join("./", '181213_102435_0000000008_CAM1_OK.bmp'))
+            #img2 = cv2.imread(os.path.join("./", '181213_102435_0000000008_CAM1_OK.bmp'))
             #img = cv2.imread(os.path.join("./", 'CAM1_6.bmp'))
 
-            detect = detection_instance.DetectionInstance(img2)
+            #detect = detection_instance.DetectionInstance(img2)
+            detect = detection_instance.DetectionInstance(img)
+
             print('init: %0.3f'% (time.time()-start))
             #image = Image(image)
             #gui = GUI(image)
@@ -58,19 +60,22 @@ class Main(Thread):
                 logging.info("Text read : %s"% results)
                 print (results)
                 logging.info("Keystrokes : %s"% results)
-                for r in results:
-                    self.keyboard.send(r)
-                    self.keyboard.send("	")
+                if (results != None) :
+                    for r in results:
+                        self.keyboard.send(r)
+                        self.keyboard.send("	")
 
-                img = imutils.rotate(detect.chip, detect.orientation_used)
-                print (img.shape)
+                    img = imutils.rotate(detect.chip, detect.orientation_used)
+                    print (img.shape)
 
-                computeResults = image.Image(img)
-                img = computeResults.addSerialNumber(results)
-                logging.info("Serial Number written")
-                #cam.saveImage(fullimg, img)
-                computeResults.saveImage(fullimg, img)
-                logging.info("Image saved")
+                    computeResults = image.Image(img)
+                    img = computeResults.addSerialNumber(results)
+                    logging.info("Serial Number written")
+                    #cam.saveImage(fullimg, img)
+                    computeResults.saveImage(fullimg, img)
+                    logging.info("Image saved")
+                else :
+                    continue
             else :
                 logging.info("Circle not found")
                 time.sleep(1)

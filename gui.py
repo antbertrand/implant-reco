@@ -8,57 +8,81 @@ import imutils
 
 class GUI(Thread):
 
-	def __init__(self, img):
-		Thread.__init__(self)
-		self.img = img
-		self.root = tkinter.Tk()
-		self.root.title("Result")
-		#Rearrang the color channel
-		self.frame = None
-		#self.thread = None
-		#self.stopEvent = None
-		self.panel = None
+    def __init__(self, img):
+        Thread.__init__(self)
+        self.img = img
+        self.root = tkinter.Tk()
+        self.root.title("Result")
+        #Rearrang the color channel
+        self.frame = None
+        #self.thread = None
+        #self.stopEvent = None
+        self.panel = None
 
-		#self.stopEvent = threading.Event()
-		#self.thread = threading.Thread(target=self.displayImage, args=())
-		self.start()
+        #w = tkinter.Label(self.root, text="Hello, world!")
+        #w.pack()
+        self.root.minsize(width=500,height=500)
+        self.root.attributes("-fullscreen", True)
+        
 
-		# set a callback to handle when the window is closed
-		self.root.wm_title("Result")
-		self.root.wm_protocol("WM_DELETE_WINDOW", self.callback)
+        #self.stopEvent = threading.Event()
+        #self.thread = threading.Thread(target=self.displayImage, args=())
 
-	def callback(self):
-		self.root.quit()
+        # set a callback to handle when the window is closed
+        self.root.wm_title("Result")
+        self.root.wm_protocol("WM_DELETE_WINDOW", self.callback)
 
-	def loadImage(self, filename, resize=None):
-	    image = Image.open(filename)
-	    if resize is not None:
-	        image = image.resize(resize, Image.ANTIALIAS)
-	    return ImageTk.PhotoImage(image)
+        #self.root.after(1000,self.update_txt)
+        #self.root.mainloop()
+        self.start()
+        self.root.mainloop()
 
-	def displayImage(self):
+    def run(self):
+        while True:
+            if self.img is not None:
+                print("has to display image !")
+                self.displayImage()
 
-		self.img = imutils.resize(self.img, width=300)
+    
+    def update_txt(self):
+        print("update txt !")
 
-		tkimg = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
-		tkimg = Image.fromarray(tkimg)
-		tkimg = ImageTk.PhotoImage(tkimg)
+    def callback(self):
+        self.root.quit()
 
-		# if the panel is not None, we need to initialize it
-		if self.panel is None:
-			self.panel = tkinter.Label(image=tkimg)
-			self.panel.image = tkimg
-			self.panel.pack(side="left", padx=10, pady=10)
-		else:
-			self.panel.configure(image=tkimg)
-			self.panel.image = tkimg
+    def loadImage(self, filename, resize=None):
+        image = Image.open(filename)
+        if resize is not None:
+            image = image.resize(resize, Image.ANTIALIAS)
+        return ImageTk.PhotoImage(image)
 
-	def onClose(self):
-		# set the stop event, cleanup the camera, and allow the rest of
-		# the quit process to continue
-		print("[INFO] closing...")
-		#self.stopEvent.set()
-		self.root.quit()
-# result = GUI()
-# tkimage = result.loadImage("../data/images/azureok.jpg", resize=(300,300))
-# result.displayImage(tkimage)
+    def displayImage(self):
+
+        #self.img = imutils.resize(self.img, width=300)
+
+        #tkimg = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
+        #tkimg = Image.fromarray(tkimg)
+        #tkimg = ImageTk.PhotoImage(tkimg)
+        tkimg = self.img
+
+        # if the panel is not None, we need to initialize it
+        if self.panel is None:
+            self.panel = tkinter.Label(self.root, image=tkimg)
+            self.panel.image = tkimg
+            self.panel.pack(side="left", padx=10, pady=10)
+        else:
+            self.panel.configure(image=tkimg)
+            self.panel.image = tkimg
+        print("displayimage")
+
+    def onClose(self):
+        # set the stop event, cleanup the camera, and allow the rest of
+        # the quit process to continue
+        print("[INFO] closing...")
+        #self.stopEvent.set()
+        self.root.quit()
+
+result = GUI(None)
+tkimage = result.loadImage("azureok.jpg")
+result.img = tkimage
+#result.displayImage(tkimage)

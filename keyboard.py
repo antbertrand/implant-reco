@@ -69,5 +69,6 @@ class Keyboard(Thread):
                 time.sleep(1)
             print("Reconnected.")
             time.sleep(3)
+        print (data)
         self.ser.write(str.encode(data))
         #self.ser.write(str.encode("\n"))

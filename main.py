@@ -29,10 +29,11 @@ def main():
         fullimg, img = cam.grabbingImage()
         start = time.time()
         #print(img.shape)
-        img2 = cv2.imread(os.path.join("./", '181213_102435_0000000008_CAM1_OK.bmp'))
+        #img2 = cv2.imread(os.path.join("./", '181213_102435_0000000008_CAM1_OK.bmp'))
         #img = cv2.imread(os.path.join("./", 'CAM1_6.bmp'))
 
-        detect = detection_instance.DetectionInstance(img2)
+        #detect = detection_instance.DetectionInstance(img2)
+        detect = detection_instance.DetectionInstance(img)
         print('init: %0.3f'% (time.time()-start))
         #image = Image(image)
         #gui = GUI(image)
