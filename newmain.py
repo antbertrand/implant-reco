@@ -24,11 +24,10 @@ class Main(Thread):
 
         self.ui = ui
 
-        self.yolo = yolo.YOLO()
-
         FORMAT = '%(asctime)s %(message)s'
         logging.basicConfig(filename='./activity.log', format=FORMAT, level=logging.DEBUG)
         self.cam = camera.Camera()
+        #self.past_detection = yolo.YOLO()
         logging.info("Camera detected")
         #self.cam.saveConf()
         #logging.info("Camera configuration saved")
@@ -39,16 +38,22 @@ class Main(Thread):
  
     #----------------------------------------------------------------------
     def run(self):
+        self.past_detection = yolo.YOLO()
+
         while True:
+
             fullimg, img = self.cam.grabbingImage()
             start = time.time()
-            self.yolo.detect_image(img)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img_pil = Image.fromarray(img)
+            
+            img2 = self.past_detection.detect_image(img_pil)
             #print(img.shape)
             #img2 = cv2.imread(os.path.join("./", '181213_102435_0000000008_CAM1_OK.bmp'))
             #img = cv2.imread(os.path.join("./", 'CAM1_6.bmp'))
 
             #detect = detection_instance.DetectionInstance(img2)
-            detect = detection_instance.DetectionInstance(img)
+            #detect = detection_instance.DetectionInstance(img)
 
             print('init: %0.3f'% (time.time()-start))
             #image = Image(image)
