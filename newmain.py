@@ -43,11 +43,16 @@ class Main(Thread):
         while True:
 
             fullimg, img = self.cam.grabbingImage()
+            img2 = img.copy()
             start = time.time()
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img_pil = Image.fromarray(img)
             
-            img2 = self.past_detection.detect_image(img_pil)
+            is_detected, out_boxes, out_scores, out_classes = self.past_detection.detect_image(img_pil)
+            print (out_boxes)
+            #print (out_boxes[0][0])
+            #print (type(img2))
+            #print (img2)
             #print(img.shape)
             #img2 = cv2.imread(os.path.join("./", '181213_102435_0000000008_CAM1_OK.bmp'))
             #img = cv2.imread(os.path.join("./", 'CAM1_6.bmp'))
@@ -59,8 +64,18 @@ class Main(Thread):
             #image = Image(image)
             #gui = GUI(image)
             start = time.time()
-            if detect.get_chip_area() :
+            if is_detected == True :
                 logging.info("Circle detected")
+                detect = detection_instance.DetectionInstance(img2, out_boxes)
+                #opencvImage = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2BGR)
+                is_cropped, img_pastille = detect.get_chip_area()
+                #print (img_pastille)
+                logging.info("Picture cropped")
+
+                #computeResults = image.Image(img_pastille)
+                #computeResults.saveImage(img_pastille, img2)
+
+
                 detect.get_text_orientations()
                 logging.info("Picture Redressed")
                 detect.read_text()
@@ -75,7 +90,7 @@ class Main(Thread):
                         self.keyboard.send("	")
 
                     img = imutils.rotate(detect.chip, detect.orientation_used)
-                    print (img.shape)
+                    #print (img.shape)
 
                     computeResults = image.Image(img)
                     img = computeResults.addSerialNumber(results)

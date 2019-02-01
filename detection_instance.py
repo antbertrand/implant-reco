@@ -24,9 +24,9 @@ def frange(start, stop, step):
 class DetectionInstance(object):
     """ A class to detect the implant chip and read the serial number
     """
-    def __init__(self, frame):
+    def __init__(self, frame, out_boxes):
         self.frame = frame
-        self.chip_crop_size = (200, 200)
+        self.chip_crop = (out_boxes[0][0], out_boxes[0][1], out_boxes[0][2], out_boxes[0][3])
         self.chip = None
         self.text_orientations = []
         self.orientation_used = None
@@ -34,67 +34,69 @@ class DetectionInstance(object):
         self.network = EAST_NET
 
     def get_chip_area(self):
-        """ Search for a circle to get the coordinates of the chip
+        """ Cropping and equalization of image
         """
 
-        img = imutils.resize(self.frame, height=600)
-        xratio = self.frame.shape[1]/float(img.shape[1])
-        yratio = self.frame.shape[0]/float(img.shape[0])
+        #img = imutils.resize(self.frame, height=600)
+        #xratio = self.frame.shape[1]/float(img.shape[1])
+        #yratio = self.frame.shape[0]/float(img.shape[0])
 
-        circles = get_circles(img, 1.1)
-        real_circle = None
+        # circles = get_circles(img, 1.1)
+        # real_circle = None
 
-        if circles is None:
-            return False
+        # if circles is None:
+        #     return False
 
-        for circle in circles[0, :]:
-            # if circle[2] > 120:
-            #     continue
-            real_circle = circle.copy()
+        # for circle in circles[0, :]:
+        #     # if circle[2] > 120:
+        #     #     continue
+        #     real_circle = circle.copy()
 
-        if real_circle is None :
-            return False
+        # if real_circle is None :
+        #     return False
 
-        crop_coords = (
-            max(0, real_circle[1]-self.chip_crop_size[0]//2)*yratio,
-            min(img.shape[0], real_circle[1]+self.chip_crop_size[0]//2)*yratio,
-            max(0, real_circle[0]-self.chip_crop_size[1]//2)*xratio,
-            min(img.shape[1], real_circle[0]+self.chip_crop_size[1]//2)*xratio
-        )
+        # crop_coords = (
+        #     max(0, real_circle[1]-self.chip_crop_size[0]//2)*yratio,
+        #     min(img.shape[0], real_circle[1]+self.chip_crop_size[0]//2)*yratio,
+        #     max(0, real_circle[0]-self.chip_crop_size[1]//2)*xratio,
+        #     min(img.shape[1], real_circle[0]+self.chip_crop_size[1]//2)*xratio
+        # )
 
-        image = self.frame[
-            int(crop_coords[0]):int(crop_coords[1]),
-            int(crop_coords[2]):int(crop_coords[3])
-        ]
+        #image = self.frame[
+         #   int(crop_coords[0]):int(crop_coords[1]),
+         #   int(crop_coords[2]):int(crop_coords[3])
+       # ]
 
-        img = imutils.resize(image, height=600)
-        xratio = image.shape[1]/img.shape[1]
-        yratio = image.shape[0]/img.shape[0]
+        #img = imutils.resize(image, height=600)
+        #xratio = image.shape[1]/img.shape[1]
+        #yratio = image.shape[0]/img.shape[0]
 
         #img = improve_contrast(img)
-        for i in frange(0.8, 3.0, 0.1):
-            circles = get_circles(img, i, maxr=200)
-            #print('test: ', type(circles))
-            if circles is not None and (circles > 0).any():
-                break
+        # for i in frange(0.8, 3.0, 0.1):
+        #     circles = get_circles(img, i, maxr=200)
+        #     #print('test: ', type(circles))
+        #     if circles is not None and (circles > 0).any():
+        #         break
 
-        if circles is not None:
-            for circle in circles[0,:]:
-                #if circle[2]>120:
-                #    continue
-                cv2.circle(img, (circle[0], circle[1]), circle[2], (0,255,0), 2)
-                cv2.circle(img, (circle[0], circle[1]), 2, (0,0,255), 3)
-                real_circle = circle.copy()
+        # if circles is not None:
+        #     for circle in circles[0,:]:
+        #         #if circle[2]>120:
+        #         #    continue
+        #         cv2.circle(img, (circle[0], circle[1]), circle[2], (0,255,0), 2)
+        #         cv2.circle(img, (circle[0], circle[1]), 2, (0,0,255), 3)
+        #         real_circle = circle.copy()
 
-        else:
-            print("Cannot find circles")
+        # else:
+        #     print("Cannot find circles")
 
-        cropSize = (400, 400)
-        cropCoords = (max(0, real_circle[1]-cropSize[0]//2)*yratio,min(img.shape[0], real_circle[1]+cropSize[0]//2)*yratio,
-                      max(0, real_circle[0]-cropSize[1]//2)*xratio,min(img.shape[1], real_circle[0]+cropSize[1]//2)*xratio)
+        #cropSize = (400, 400)
+        #cropCoords = (max(0, real_circle[1]-cropSize[0]//2)*yratio,min(img.shape[0], real_circle[1]+cropSize[0]//2)*yratio,
+                      #max(0, real_circle[0]-cropSize[1]//2)*xratio,min(img.shape[1], real_circle[0]+cropSize[1]//2)*xratio)
         #print(cropCoords)
-        image = image[int(cropCoords[0]):int(cropCoords[1]), int(cropCoords[2]):int(cropCoords[3])]
-
+        #x_min,y_min,x_max,y_max
+        # for cropping structure : ymin, ymax, xmin, xmax
+        #image = self.frame[int(self.chip_crop[1]):int(self.chip_crop[3]), int(self.chip_crop[0]):int(self.chip_crop[2])]
+        image = self.frame[int(self.chip_crop[0]):int(self.chip_crop[2]), int(self.chip_crop[1]):int(self.chip_crop[3])]
 
         if len(image.shape) > 2:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -102,7 +104,7 @@ class DetectionInstance(object):
 
         self.chip = image
 
-        return True
+        return True, image
 
     def get_text_orientations(self):
         """ Search for 3 text areas in the chip area
@@ -111,6 +113,7 @@ class DetectionInstance(object):
         for deg in range(0, 360, 20):
             boxes = detect_text(image, self.network, deg)
             if len(boxes) > 2:
+                print ("text detection ok")
                 self.text_orientations.append(deg)
 
 

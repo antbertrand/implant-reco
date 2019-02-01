@@ -115,7 +115,7 @@ class YOLO(object):
             boxed_image = letterbox_image(image, new_image_size)
         image_data = np.array(boxed_image, dtype='float32')
 
-        print(image_data.shape)
+        #print(image_data.shape)
         image_data /= 255.
         image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
 
@@ -128,6 +128,10 @@ class YOLO(object):
             })
 
         print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
+        if len(out_boxes) != 0 :
+            is_detected = True
+        else : 
+            is_detected = False
 
         # font = ImageFont.truetype(font='font/FiraMono-Medium.otf',
         #             size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
@@ -167,7 +171,7 @@ class YOLO(object):
 
         end = timer()
         print(end - start)
-        return image
+        return is_detected, out_boxes, out_scores, out_classes
 
     def close_session(self):
         self.sess.close()
@@ -192,7 +196,7 @@ def detect_video(yolo, video_path, output_path=""):
     while True:
         return_value, frame = vid.read()
         image = Image.fromarray(frame)
-        image = yolo.detect_image(image)
+        image, _ = yolo.detect_image(image)
         result = np.asarray(image)
         curr_time = timer()
         exec_time = curr_time - prev_time
