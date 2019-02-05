@@ -1,0 +1,49 @@
+version: '3.4'
+
+services:
+  # gcaesthetics-implantbox-nginx-bare:
+  #   volumes:
+  #     - ./gcaesthetics-implantbox-nginx-bare/conf.d:/etc/nginx/conf.d
+
+
+  gcaesthetics-implantbox-front:
+    build:
+      target: build-stage
+    # command: sleep 2147483647
+    command: npm run serve
+    volumes:
+      # - ../gcaesthetics-implantbox-vue/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+      - ../gcaesthetics-implantbox-vue/:/app
+    env_file:
+      - ./settings-common.env
+      - ./settings-${DEPLOY_ENV}.env
+    ports:
+      - "9080:80"
+      - "8080:8080"
+      - "8081:8081"
+
+  gcaesthetics-implantbox-django:
+    # command: gunicorn gcaesthetics-implantbox.wsgi -b 0.0.0.0:8000 --reload
+    command: django-admin runserver 0.0.0.0:8000
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../gcaesthetics-implantbox-django/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+      - ../gcaesthetics-implantbox-django/src:/src
+
+  # We disable the Celery Worker in development mode
+  gcaesthetics-implantbox-celery-worker:
+    command: sleep infinity
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../gcaesthetics-implantbox-django/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+      - ../gcaesthetics-implantbox-django/src:/src
+
+  gcaesthetics-implantbox-django-setup:
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../gcaesthetics-implantbox-django/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+      - ../gcaesthetics-implantbox-django/django-setup.sh:/usr/local/bin/django-setup.sh
+      - ../gcaesthetics-implantbox-django/src:/src

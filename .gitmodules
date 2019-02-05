@@ -1,0 +1,3 @@
+[submodule "provision/dmake"]
+	path = provision/dmake
+	url = https://github.com/numericube/dmake.git
