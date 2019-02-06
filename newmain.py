@@ -9,6 +9,7 @@ import time
 import logging
 from keyboard import Keyboard
 import yolo
+import yolo_text
 
 
 import numpy as np
@@ -39,13 +40,14 @@ class Main(Thread):
     #----------------------------------------------------------------------
     def run(self):
         self.past_detection = yolo.YOLO()
+        self.text_detection = yolo_text.YOLO()
 
         while True:
 
             fullimg, img = self.cam.grabbingImage()
             img2 = img.copy()
             start = time.time()
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img_pil = Image.fromarray(img)
             
             is_detected, out_boxes, out_scores, out_classes = self.past_detection.detect_image(img_pil)
@@ -72,34 +74,39 @@ class Main(Thread):
                 #print (img_pastille)
                 logging.info("Picture cropped")
 
-                #computeResults = image.Image(img_pastille)
-                #computeResults.saveImage(img_pastille, img2)
+                computeResults = image.Image(img_pastille)
+                computeResults.saveImage(img2, img_pastille)
+
+                is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(img_pil)
 
 
-                detect.get_text_orientations()
-                logging.info("Picture Redressed")
-                detect.read_text()
-                print('process: %0.3f'% (time.time()-start))
-                results = detect.text
-                logging.info("Text read : %s"% results)
-                print (results)
-                logging.info("Keystrokes : %s"% results)
-                if (results != None) :
-                    for r in results:
-                        self.keyboard.send(r)
-                        self.keyboard.send("	")
+                print ("CHANGER PROTHESE")
+                time.sleep(5)
 
-                    img = imutils.rotate(detect.chip, detect.orientation_used)
-                    #print (img.shape)
+                # # detect.get_text_orientations()
+                # # logging.info("Picture Redressed")
+                # # detect.read_text()
+                # print('process: %0.3f'% (time.time()-start))
+                # results = detect.text
+                # logging.info("Text read : %s"% results)
+                # print (results)
+                # logging.info("Keystrokes : %s"% results)
+                # if (results != None) :
+                #     for r in results:
+                #         self.keyboard.send(r)
+                #         self.keyboard.send("	")
 
-                    computeResults = image.Image(img)
-                    img = computeResults.addSerialNumber(results)
-                    logging.info("Serial Number written")
-                    #cam.saveImage(fullimg, img)
-                    computeResults.saveImage(fullimg, img)
-                    logging.info("Image saved")
-                else :
-                    continue
+                #     img = imutils.rotate(detect.chip, detect.orientation_used)
+                #     #print (img.shape)
+
+                #     computeResults = image.Image(img)
+                #     img = computeResults.addSerialNumber(results)
+                #     logging.info("Serial Number written")
+                #     #cam.saveImage(fullimg, img)
+                #     computeResults.saveImage(fullimg, img)
+                #     logging.info("Image saved")
+                # else :
+                #     continue
             else :
                 logging.info("Circle not found")
                 time.sleep(1)
@@ -150,8 +157,12 @@ class ImplantBox():
     def displayImage(self, img):
         img = imutils.resize(img, width=300)
 
-        tkimg = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        tkimg = Image.fromarray(tkimg)
+        # tkimg = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # tkimg = Image.fromarray(tkimg)
+        # tkimg = ImageTk.PhotoImage(tkimg)
+
+        #tkimg = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        tkimg = Image.fromarray(img)
         tkimg = ImageTk.PhotoImage(tkimg)
 
         # if the panel is not None, we need to initialize it

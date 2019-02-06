@@ -17,8 +17,9 @@ class Image(object):
     def saveImage(self, currImg, resizeImg):
         uuid = Image.generateUUID()
         #Image.fromarray(resizeImg).save("./" + str(uuid.uuid4().hex) + ".tiff")
-        cv2.imwrite( "./" + uuid + "resized" + ".png", cv2.cvtColor(resizeImg, cv2.COLOR_RGB2BGR) )
-        cv2.imwrite( "./" + uuid + "full" + ".png", currImg)
+        #cv2.imwrite( "./" + uuid + "resized" + ".png", cv2.cvtColor(resizeImg, cv2.COLOR_RGB2BGR) )
+        cv2.imwrite( "./images/" + uuid + "resized" + ".png", resizeImg)
+        cv2.imwrite( "./images/" + uuid + "full" + ".png", currImg)
         return "Images Saved"
 
     def generateUUID():

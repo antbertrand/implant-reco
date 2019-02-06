@@ -22,9 +22,9 @@ class YOLO(object):
     _defaults = {
         #"model_path": 'model_data/yolo.h5',
         #"anchors_path": 'model_data/yolo_anchors.txt',
-        "model_path": 'tiny_yolo_weights_past.h5',
-        "anchors_path": 'tiny_yolo_anchors_past.txt',
-        "classes_path": 'classes_past.txt',
+        "model_path": 'tiny_yolo_weights_text.h5',
+        "anchors_path": 'tiny_yolo_anchors_text.txt',
+        "classes_path": 'classes_text.txt',
         "score" : 0.3,
         "iou" : 0.45,
         "model_image_size" : (416, 416),

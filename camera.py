@@ -14,7 +14,7 @@ class Camera(object):
         self.first_device = py.TlFactory.GetInstance().CreateFirstDevice()
         self.instant_camera = py.InstantCamera(self.first_device)
         self.instant_camera.Open()
-        self.instant_camera.PixelFormat = 'RGB8'
+        #self.instant_camera.PixelFormat = 'RGB8'
 
     def loadConf(self):
         py.FeaturePersistence.Load(self.conf, self.instant_camera.GetNodeMap())
