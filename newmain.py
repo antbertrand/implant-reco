@@ -51,7 +51,8 @@ class Main(Thread):
             img_pil = Image.fromarray(img)
             
             is_detected, out_boxes, out_scores, out_classes = self.past_detection.detect_image(img_pil)
-            print (out_boxes)
+            #print (out_boxes)
+
             #print (out_boxes[0][0])
             #print (type(img2))
             #print (img2)
@@ -74,14 +75,29 @@ class Main(Thread):
                 #print (img_pastille)
                 logging.info("Picture cropped")
 
-                computeResults = image.Image(img_pastille)
-                computeResults.saveImage(img2, img_pastille)
+                #computeResults = image.Image(img_pastille)
+                #computeResults.saveImage(img2, img_pastille)
 
-                is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(img_pil)
+                print ("detection de texte :")
+
+                pil_img_pastille = Image.fromarray(img_pastille)
+
+                #is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(pil_img_pastille)
+
+                for deg in range(0, 360, 5):
+                    is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(pil_img_pastille)
+                    if len(out_boxes) >= 1:
+                        print ("text detection ok")
+                        print (out_boxes)
+                        text1, texte2, texte3 = detect.get_text_area(pil_img_pastille, out_boxes)
+                        computeResults.saveImage(text1, texte2)
+                        break
+                    else :
+                        pil_img_pastille.rotate(deg)
+                        print ("Image Rotate...")
+                        print (deg)
 
 
-                print ("CHANGER PROTHESE")
-                time.sleep(5)
 
                 # # detect.get_text_orientations()
                 # # logging.info("Picture Redressed")

@@ -106,6 +106,16 @@ class DetectionInstance(object):
 
         return True, image
 
+    def get_text_area(img, out_boxes):
+        """ Crop for 3 text areas in the chip area
+        """
+        image1 = img[int(out_boxes[0][0]):int(out_boxes[0][2]), int(out_boxes[0][1]):int(out_boxes[0][3])]
+        image2 = img[int(out_boxes[1][0]):int(out_boxes[1][2]), int(out_boxes[1][1]):int(out_boxes[1][3])]
+        image3 = img[int(out_boxes[2][0]):int(out_boxes[2][2]), int(out_boxes[2][1]):int(out_boxes[2][3])]
+
+        return image1, image2, image3
+
+
     def get_text_orientations(self):
         """ Search for 3 text areas in the chip area
         """
