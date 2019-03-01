@@ -128,7 +128,8 @@ class YOLO(object):
             })
 
         print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
-        if len(out_boxes) != 0 :
+
+        if len(out_boxes) == 1 and not any(elem < 0 for elem in out_boxes[0]) :
             is_detected = True
         else : 
             is_detected = False
