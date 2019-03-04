@@ -1,0 +1,82 @@
+%!TeX root = ../main.tex
+\chapter{Conception algorithmique}
+
+Dans ce chapitre,
+
+\section{Déclenchement de la prise de vue et identification de la pastille}
+
+Pour déclencher la prise de vue, il faut au préalablement créer la partie détection d’une prothèse en place.
+Pour ce faire :
+\begin{itemize}
+    \item Analyse des frames de la camera, toutes les X ms.
+    \item Détection et localisation du cercle des pastilles contenant les numéros de série.
+\end{itemize}
+Libraires utilisées : pyPylon, SDK caméra, Keras
+
+\section{Traitement de l’image}
+
+Après détection de la pastille via deep learning, il faut nécassairement traiter l'image qui va nous permettre de rendre les numéros de série sur les images exploitable. L’image va suivre un pipeline de traitement, générique pour toutes les images (et donc tous les produits scannés), qui va permettre de rendre l’information visuelle exploitable.
+Le pipeline se décompose de la façon suivante :
+\begin{itemize}
+    \item Découpage et redimensionnement de la photo sur la pastille pour s’affranchir de données visuelles sans intérêt, et accélérer les temps de traitement.
+    \item Vérification du format de l'image, conversion de l’image en Noir & Blanc si besoin.
+    \item Passe d’égalisation adaptative de l’histogramme
+\end{itemize}
+
+Libraires utilisées : OpenCV
+
+\section{Redressement de l'image et détection des zones de texte}
+
+Après le traitement d'image, nous devons redresser l'image, et détecter les zones de texte. Nous allons justement utiliser la détéction de texte pour redresser l'image. L'algorithme va boucler sur la photo, de façon a détecter les zones de texte. Si la détéction n'est pas concluante, alors on tourne l'image de X degrés. On efféctue cette opération autant de fois que nécéssaire (généralement sur 360 degrés).
+Le pipline :
+\begin{itemize}
+    \item Détection zones de texte.
+    \item Vérification du nombre de détection.
+    \item Rotation de l'image de X degrés.
+    \item Découpage et redimensionnement de la photo sur les zones de texte de la pastille pour s’affranchir de données visuelles sans intérêt, et accélérer les temps de traitement.
+\end{itemize}
+
+Libraires utilisées : OpenCV, keras
+
+\section{Détection des caractères des numéros de série}
+
+Troisième et derniere étape d'inférence : La détéction des caractères.
+Pour chaque zone de texte détectée :
+\begin{itemize}
+    \item Détection et identification des caractères.
+    \item Re-constitution des numéro de série.
+    \item Envoi des numéros de série via liaison série vers l'Arduino.
+\end{itemize}
+
+Libraires utilisées : keras, serial
+
+\section{Transmission et saisie clavier sur la machine client}
+
+Pour des raisons techniques, il est impossible d’assurer une transmission filaire PC to PC via USB. Les port USB d’un ordinateur ne peut pas être programmés pour générer et simuler des périphériques USB. On va donc obligatoirement passer par une solution hardware programmable, qui va simplement faire le lien entre les deux PC via USB, tout en se comportant comme un clavier pour le PC client.
+Cette solution hardware est l'Arduino DUE.
+
+L’Arduino DUE se compose de 2 ports micro USB distincts (un natif, et un programmable):
+\begin{itemize}
+    \item Un Atmega16U2 (microcontrôleur), qui va assurer la communication avec le PC client, et la simulation des touches clavier.
+    \item Un Atmel SAM3X (processeur ARM) qui va assurer la communication avec le PC source, en recevant les données correspondant au numéro de série.
+    \item Rotation de l'image de X degrés.
+    \item Découpage et redimensionnement de la photo sur les zones de texte de la pastille pour s’affranchir de données visuelles sans intérêt, et accélérer les temps de traitement.
+\end{itemize}
+
+L’alimentation de l’Arduino DUE se fait lorsque l’un des deux ports usb est connecté. On peut aussi l’alimenter en externe, via prise d’alimentation. Étant donné que l’Arduino est indépendant, il se comporte comme un périphérique « Plug and Play », même en cas de coupure de courant, celui-ci ne nécessite aucune manipulation particulière. L’alimentation USB simple suffira.
+
+Partie mini PC : La librairie serial de python3 est utilisée pour communiquer et transmettre les caractères clavier à générer sur l’Arduino.
+
+Partie Arduino : Les lignes de code qui vont transformer les caractères reçus par le mini PC, sont enregistrées dans l’EEPROM de l’Arduino. L’EEPROM rend l’Arduino insensible a la coupure de courant. Seul le code présent dans la mémoire de l’Arduino est exécuté.
+Les caractères lus sur l’image du mini PC sont transmis à l’Arduino via liaison USB/série. L’Arduino va générer et envoyer presque instantanément les trames correspondantes à ces caractères, en ce comportent de façon totalement transparente comme périphérique clavier pour le PC client.
+
+\section{Librairies requises : Résumé}
+
+Résumé des libraires/import requis(es) pour le projet :
+Python3, Opencv, pypylon (sdk basler/swig/gcc), numpy, time uuid, tkinter, requests, http, urllib, math, imutils, threading, serial.
+
+Pour la partie camera/SDK Basler, se référer au github Basler (https://github.com/basler/pypylon)
+Toutes les autres librairies sont à installer via pip ou incluses nativement dans Python3.
+Pour l’Arduino, le code est également sur le github Numericube, sur le repo dédié au projet, mais n’a logiquement pas besoin d’être re-flashé.
+En ce qui concerne l’OS, c’est un Ubuntu qui est installé sur le NUC (Mini PC).
+Enfin le fichier NodeMapSAVE.pfs est le fichier dans lequel est enregistré la configuration caméra, nécessaire après redémarrage du système, pour une parfaite autonomie. Il va cependant dépendre des paramètres lumineux environnementaux, une version « finale » sera donc enregistrée chez le client. Puisque les réglages caméra dépendent de l’éclairage et environnement...

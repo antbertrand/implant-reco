@@ -1,0 +1,51 @@
+%!TeX root = ../main.tex
+\chapter{Matériel}
+
+Ce chapitre explique les généralités du document.
+
+\section{Boîte}
+
+La boite doit être conçue de façon à respecter les conditions suivantes :
+\begin{itemize}
+    \item Être intégrable sur le plan de travail dédié dans la chaine de production Eurosilicone : Les dimensions totales de la boite doivent tenir sur une paillasse.
+    \item Être relativement compacte : L’objet doit être le plus petit possible, sans en altérer son fonctionnement.
+    \item Permettre de réaliser la lecture des numéros de série de tous les types de dispositifs médicaux, indépendamment de la taille : Une fenêtre de verre doit être prévue pour permettre au dispositif de prise de vue de faire l’acquisition des données visuelles, ainsi qu’un dispositif d’éclairage permettant la prise de vue dans des conditions exploitables.
+    \item Être facilement utilisable par les opérateurs/opératrices : Rejoint l’aspect ergonomie, doit permettre la manipulation des prothèses facilement sur le lecteur.
+    \item Ne pas être sensible aux solvants/nettoyants utilisés dans la chaine de production : La boite devra être composée que de matériaux qui ne réagissent pas les détergents utilisés en chaine de production.
+\end{itemize}
+
+\section{Conception de la boite}
+
+PHOTO DE LA BOITE
+
+Les matériaux utilisés seront :
+\begin{itemize}
+    \item Du plexiglass noir pour les parties « externe » de la boîte : Ce sera le composé principal de la structure, résistant aux détergents.
+    \item Une vitre de verre pour la partie haute, permettant au système d’acquisition de lire le numéro de la prothèse.
+    \item Barres de LEDs 10 watts, 1000 Lumens. Orientables pour eviter l'éblouissement, ainsi que pour permettre l'éclairement optimal pour la visualisation des numéros de série.
+\end{itemize}
+
+D’un point de vue technique sur la conception de la boite, il faut prendre en compte :
+\begin{itemize}
+    \item La plaque de verre doit être d’une taille suffisante pour permettre de visualiser la boite de la plus grande prothèse ainsi que les prothèses en sachet. Soit 20cmx20cm*4mm.
+    \item L’éclairage doit être assez puissant et régulier pour visualiser correctement les numéros de série avec le dispositif de prise de vue. Après test, on a déterminé qu’il était préférable d'opter pour un éclairage rasant. En effet, une lumière rasante permet d’offrir des résultats plus réguliers, et surtout de fournir des prises de vues avec de fort contrastes au niveau des numéros de série.
+    \item La camera à deux contraintes fortes : La distance de mise au point, et l’angle de champ de la caméra.
+    La distance de mise au point est propre au capteur/objectif, il doit être d’assez bonne facture pour permettre une mise au point à courte distance.
+    L’angle de champ est fonction de la focale, il doit être assez élevé pour visualiser toute la zone a « scanner » environ 10cmx10cm, de ce fait, la distance entre la camera et la plaque de verre doit être fonction de l’angle de champ de la caméra. Évidemment, l’angle de champs doit être élevé, pour minimiser la distance caméra/plaque de verre, afin de rendre la boite plus compacte.
+    \item L’écran de retour : Sur cet écran, on a un retour de la lecture des numéros de série, qui permettra à l’opérateur de visualiser le bon déroulement de la lecture des numéros de série.
+    \item Le mini PC : Le mini PC se chargera de piloter le dispositif de prise de vue, d’interfacer la saisie clavier avec l'Arduino DUE, ainsi que d’exécuter toute la partie algorithmique pour : la détection du produit, le traitement de l’image, la détection et l’identification des caractères gravés.
+    \item L'Arduino DUE : L'Arduino se chargera de générer les trames du clavier, selon les caractères détéctés par le système.
+\end{itemize}
+
+
+\section{Mini PC et Caméra}
+
+\begin{itemize}
+    \item Le mini PC est un NUC d’Intel (dimensions L x W x H : 11,5 x 11,1 x 5,1 cm) NUC8I3BEH, disposant d’aucune pièce mécanique (SSD). Celui-ci va être assez véloce pour faire tourner l’algorithme, et gérer toutes les E/S hardware.
+    \item La caméra est une Basler Ace acA5472-17um USB3 Mono, 20Mpx, c’est une caméra USB fonctionnant sous linux (SDK).
+    \item Objectif Fujinon CF16ZA-1S F1.8/16mm.
+\end{itemize}
+
+\section{Mini écran de retour}
+
+Le mini écran de retour sera simplement connecté en HDMI au mini PC, et intégré dans la boite sur une paroi. C'est un Waveshare 5 Pouces LCD HDMI 800 * 480 Haute résolution.

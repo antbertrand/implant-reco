@@ -1,0 +1,21 @@
+\glossarysection[\glossarytoctitle]{\glossarytitle}\glossarypreamble
+\begin{theglossary}\glossaryheader
+\glsgroupheading{C}\relax \glsresetentrylist %
+\glossentry{cli}{\glossaryentrynumbers{\relax 
+		\setentrycounter[]{page}\glsnumberformat{9}}}\glsgroupskip
+\glsgroupheading{D}\relax \glsresetentrylist %
+\glossentry{docker}{\glossaryentrynumbers{\relax 
+		\setentrycounter[]{page}\glsnumberformat{9}}}%
+\glossentry{draft}{\glossaryentrynumbers{\relax 
+		\setentrycounter[]{page}\glsignore{25}}}\glsgroupskip
+\glsgroupheading{G}\relax \glsresetentrylist %
+\glossentry{github}{\glossaryentrynumbers{\relax 
+		\setentrycounter[]{page}\glsnumberformat{vii}\delimN 
+		\setentrycounter[]{page}\glsnumberformat{13}\delimN 
+		\setentrycounter[]{page}\glsnumberformat{15}\delimN 
+		\setentrycounter[]{page}\glsnumberformat{17}}}\glsgroupskip
+\glsgroupheading{N}\relax \glsresetentrylist %
+\glossentry{n3}{\glossaryentrynumbers{\relax 
+		\setentrycounter[]{page}\glsnumberformat{10}\delimN 
+		\setentrycounter[]{page}\glsnumberformat{16}}}%
+\end{theglossary}\glossarypostamble

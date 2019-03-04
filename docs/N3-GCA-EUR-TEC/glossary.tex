@@ -1,0 +1,68 @@
+% Glossary and acronyms management
+% See https://en.wikibooks.org/wiki/LaTeX/Glossary#Defining_symbols
+% for more information.
+%
+% La forma de definir un acrónimo es la siguiente:
+% \newacronyn{id}{siglas}{descripción}
+% Donde:
+% 	'id' es como vas a llamarlo desde el documento.
+%	'siglas' son las siglas del acrónimo.
+%	'descripción' es el texto que representan las siglas.
+%
+% Para usarlo en el documento tienes 4 formas:
+% pepper your writing with \gls{mylabel} macros (and similar) to simultaneously insert your predefined text and build the associated glossary.
+% \glsentryshort{id} - Añade solo las siglas de la id
+% \glsentrylong{id} - Añade solo la descripción de la id
+% \glsentryfull{id} - Añade tanto  la descripción como las siglas
+
+\newacronym{n3}{N3}{NumeriCube}
+\newacronym{cli}{CLI}{Command Line Interface}
+
+\newglossaryentry{github}
+{
+    name={GitHub},
+    description={
+        The source management service (owned by Microsoft).
+        See \url{https://www.github.com}
+    }
+}
+
+\newglossaryentry{draft}
+{
+    name={Draft},
+    description={
+        A draft document is a document that is neither production-grade nor
+        delivery-grade. A document whose reference is postfixed by the "\-DRAFT"
+        mention is a document that has been generated during development process
+        with misalignment between the repository revision and the moment it's been
+        generated.
+    }
+}
+
+% \newglossaryentry{real number}
+% {
+%   name={real number},
+%   description={GROUMPF. include both rational numbers, such as $42$ and
+%                $\frac{-23}{129}$, and irrational numbers,
+%                such as $\pi$ and the square root of two; or,
+%                a real number can be given by an infinite decimal
+%                representation, such as $2.4871773339\ldots$ where
+%                the digits continue in some way; or, the real
+%                numbers may be thought of as points on an infinitely
+%                long number line},
+%   symbol={\ensuremath{\mathbb{R}}}
+% }
+
+\newglossaryentry{docker}
+{
+  name={Docker},
+  description={include both rational numbers, such as $42$ and
+               $\frac{-23}{129}$, and irrational numbers,
+               such as $\pi$ and the square root of two; or,
+               a real number can be given by an infinite decimal
+               representation, such as $2.4871773339\ldots$ where
+               the digits continue in some way; or, the real
+               numbers may be thought of as points on an infinitely
+               long number line},
+  symbol={\ensuremath{\mathbb{R}}}
+}

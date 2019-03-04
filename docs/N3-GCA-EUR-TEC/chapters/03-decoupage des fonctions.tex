@@ -1,0 +1,197 @@
+%!TeX root = ../main.tex
+\chapter{Découpage des fonctions}
+
+Dans ce chapitre, vous retrouverez en détails le découpage des fonctions du projet.
+
+\section{Camera.py}
+\subsection{loadConf (self) :}
+Fonction permettant de charger le fichier de configuration (les paramètres comme exposure time, etc...) de la caméra. Ces paramètre sont définis dans un fichier au format .pfs (NodeMap.pfs).
+Input : fichier de configuration .pfs
+Output : Message configuration bien chargée.
+
+\subsection{saveConf (self) :}
+Fonction permettant d’enregistrer les paramètres de configuration de la caméra, dans un fichier .pfs. Les paramètres caméra sont réglé préalablement dans l’outil Pylon, qui permet un visuel temps réel de la caméra et de ses réglages.
+Input : Nom fichier de configuration .pfs (self.conf)
+Output : Message configuration ok + fichier de configuration
+
+\subsection{grabbingImage (self) :}
+Fonction permettant la capture d’une image a l’instant T.
+Input : Initialisation de la camera (self.instant_camera)
+Output : currImg (Image opencv plein format), resizeImg (Image opencv Full HD)
+
+\subsection{saveImage (self, currImg, resizeImg) :}
+Fonction permettant d’enregistrer les images capturées par la caméran sur le disque. Enregistre les images plein format et full HD, à la racine courante (ou ailleurs...), avec un nom généré par UUID.
+Input : Image opencv plein format, image opencv full HD
+Output : Message « Images saved »
+
+\subsection{generateUUID :}
+Fonction permettant de générer un UUID, pour le nommage de fichiers (principalement images).
+Output : UUID sous forme de string, généré a l’instant de l’appel T. (Vu que c’est généré selon le timestamp...)
+
+\subsection{showImage (self) :}
+Fonction permettant d’afficher l’image. Utilisée et exploitée seulement pour le dev...
+Input : Image opencv
+Output : Fenêtre python avec l’image affichée.
+
+\section{Detection_instance.py}
+\subsection{get_chip_area (self) :}
+Fonction permettant de cropper et égaliser l’image autour de la pastille détectée.
+Input : Image (capturée par la caméra), self.chip_crop (coordonnées de la bounding box détecté)
+Output : Booléen (True si détection, false si pas de détection...), image (image croppée autour de la pastille)
+
+\subsection{get_text_area (img, out_boxes) :}
+Fonction permettant de cropper l’image autour des textes détectés. Il y en a 3 par image.
+Input : Image (provenant de l’image croppée get_chip_area), out_boxes (coordonnées des bounding boxes détectés autour des zones de texte)
+Output : Image1, Image2, Image3 (Chaque image représentant une zone de texte)
+
+\subsection{get_text_orientation (self) :}
+Fonction permettant de détecter l’orientation des textes, et donc, de définir l’orientation de l’image.
+Cette fonction va appeler la fonction get_texte_area, et boucler sur celle-ci de façon à détecter et isoler les 3 champs de textes des photos de pastilles, selon une rotation de l’image definit.
+Input : Image (croppée de la pastille), int (entier d’incrément de la rotation de l’image)
+Output :
+
+\subsection{read_text (self) :}
+Fonction permettant de lire les caractères sur chacune des zones de texte.
+Input : Image de texte 1, image de texte 2, image de texte 3
+Output : 3 listes de string, représentant chacune, les caractères d’une des 3 zones de texte.
+
+\section{Image.py}
+\subsection{openImage (self, filename) :}
+Fonction permettant l’ouverture d’une image.
+Input : Chemin d’accès de l’image
+Output : Image opencv
+
+\subsection{addSerialNumber (self, serialNumber) :}
+Fonction permettant d’incruster le numéro de série lu, sur l’image retour visible par l’opérateur.
+Input : Image (image sans le numéro de série incrusté)
+Output : Image (image avec numéro de série incrusté)
+
+\section{Gui.py}
+\subsection{run (self) :}
+Fonction d’exécution de thread. Boucle en permanence sur la fonction displayImage().
+
+\subsection{update_txt (self) :}
+Fonction d’affichage texte message « Upate.txt », utilisée lors du dev.
+loadImage (self, filename, resize=None) :
+Fonction permettant de charger l’image qui sera affichée.
+Input : filename de l’image
+Output : Image tkinter
+
+\subsection{displayImage (self) :}
+Fonction permettant l’affichage de l’image, dans une fenêtre tkinter (gui...).
+Input : Image tkinter (Image output loadImage)
+Output : Affichage de la GUI avec l’image tkinter
+
+\subsection{onClose (self) :}
+Fonction de stop qui « tue » la fenêtre lors de la fermeture de celle-ci.
+
+\section{Keyboard.py}
+\subsection{openAndListen (self) :}
+Fonction permettant d’initialiser et de tester la connexion série entre le PC qui permet de détecter les numéros de série et l’Arduino DUE.
+Input : serial_device
+Output : Ouverture liaison série
+
+\subsection{isAvailable (self) :}
+Test la disponibilité du port série de l’Arduino (et donc, test la conexion PC/Arduino)
+Input : serial_device
+Output : booléen (isAvailable)
+
+\subsection{connect (self) :}
+Fonction qui permet d’initialiser la connexion entre le PC et l’arduino DUE.
+Input : self.serial_device
+Output : self.serial_device
+
+\subsection{stopOnJoin (self) :}
+Fonction qui sert à couper la connexion série entre le PC et l’arduino DUE.
+Input : self.serial_device
+Output : self.serial_device
+
+\subsection{send (self, data) :}
+Fonction qui permet d’envoyer les données PC via la liaison série vers l’arduino DUE. Ces données sont par la suite converties en signal « clavier » par l’Arduino vers le PC client.
+Input : self.serial_device, data (liste de caractères)
+Output : données encodées sur port série
+
+\section{Yolo.py}
+Un fichier pour chaque détecteur. Il faudra surement factoriser par la suite...
+\subsection{_get_class (self) :}
+Fonction qui permet de récupérer le nom de des classes à partir du fichier dédié pour.
+Input : class_file path
+Output : liste de string nom des classes
+
+\subsection{_get_anchors (self) :}
+Fonction permettant
+Input : anchor_file path
+Output : numpy array des anchors
+
+\subsection{generate (self) :}
+Fonction permettant de charger les model et les fichiers de poids.
+Input : Fichiers de poids, fichier de classe, fichier anchors...
+Output : Tensor initialiser pour inférer !
+
+\subsection{detect_img (self, image) :}
+Fonction permettant d’exécuter l’inférence sur une image donnée.
+Input : Tensor chargé, image a inférer.
+Output : is_detected (bool, True si detection il y a), out_boxes (coordonnées des bounding box), out_scores (score de confiance), out_classes (classe correspondante)
+
+\subsection{Utils Yolo3 :}
+Le dossier Yolo3 contient 3 fichiers : init.py, model.py, utils.py. Ces fichiers contiennent une série de fonctions nécessaire à l’exécution de yolo3.
+\begin{itemize}
+    \item Model.py : Contient toute la définition des architectures yolo et tiny yolo.
+    \item Utils.py : Contient des fonctions principalement de pré-processing, comme le redimensionnement des images, la modification des images (pour data augmentation par exemple), etc...
+\end{itemize}
+
+\subsection{Dépendances et fichier de configuration nécessaires pour Yolo3 :}
+Chaque inférence doit avoir ses propres fichiers de configuration :
+XXXX : Nom de chaque étape (détection pastille / détection texte / détection caractères)
+\begin{itemize}
+    \item Classes_XXXX.txt : Fichier texte listant les classes.
+    \item Tiny_yolo_anchors_XXXX.txt : Fichier texte listant les dimensions des anchors (6 anchors, width,height)
+    \item Tiny_yolo_weights_XXX.h5 : fichier de poids
+\end{itemize}
+
+\section{Main.py}
+Fichier d’exécution principal, contenant l’appel des fonctions...
+Le fichier main.py est découpé en plusieurs classes.
+Class Main (Thread) : Thread gérant la partie « processing ».
+Class ImplantBox : Thread gérant la partie GUI.
+
+\section{ArduinoProgram.ino}
+Fichier de code du microcontrôleur Arduino. Il se décompose de la façon suivante :
+\subsection{Setup () :}
+Fonction permettant la configuration de l’Arduino. Initialisation des pins/port, configuration liaison série, et configuration du « mode » génération touches clavier (azerty fr).
+\subsection{Loop () :}
+Fonction permettant l’envoi et la génération des données clavier.
+Principe :
+\begin{itemize}
+    \item Le PC envois une string finissant par un retour à la ligne
+    \item L’Arduino reçoit une string, comprend que c’est la fin de la string avec le retour à la ligne
+    \item L’Arduino renvoi la string reçu pour vérifier que les données envoyées par le PC correspondent à celles reçu par l’Arduino
+    \item Génération et envoi des données « clavier » sur le port dédié à l’envoie des données PC client
+\end{itemize}
+Au niveau des ports :
+\begin{itemize}
+    \item Le port natif, relié à l’Atmel (CPU) : PC client
+    \item Le port programming (coté alimentation) : PC source (donc relié au NUC)
+\end{itemize}
+
+
+\section{Gestion de la GUI (activation / désactivation)}
+Pour des raisons pratiques de ressources et de minimisation des potentiels risques de problèmes, nous désactiverons la GUI. Il suffira de se logger avec User/Password au démarrage de la machine.
+
+Pour information, les commandes d’activation/désactivation GUI sont :
+Pour désactiver la GUI au boot :
+\begin{lstlisting}[style=Latex-color]
+sudo systemctl set-default multi-user.target
+\end{lstlisting}
+
+Pour réactiver la GUI au boot :
+\begin{lstlisting}[style=Latex-color]
+sudo systemctl set-default graphical.target
+\end{lstlisting}
+
+\section{Configuration de la camera via app PylonViewer}
+Pour la gestion de la configuration de la caméra, on utilise l’application PylonViewerApp.
+Le fichier exécutable se trouve dans /opt/pylon5/bin/PylonViewerApp
+L’application permet de visualiser l’image caméra, ainsi que des régler ses paramètres.
+Une fois l’application fermée, les paramètres camera restent sur les derniers réglages.
+De ce fait, en exécutant la fonction d’enregistrement de configuration, on obtient le fichier NodeMapSAVE.pfs
