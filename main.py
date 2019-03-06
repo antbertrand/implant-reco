@@ -17,6 +17,7 @@ import numpy as np
 import tkinter
 from PIL import Image, ImageTk
 from threading import Thread
+from PIL import Image
 
 ########################################################################
 class Main(Thread):
@@ -46,13 +47,14 @@ class Main(Thread):
 
         while True:
 
+            #############################################PART 1##########################################
             #Grab image from camera
-            fullimg, img = self.cam.grabbingImage()
+            ##fullimg, img = self.cam.grabbingImage()
 
             #img2 = img.copy()
             start = time.time()
             #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            #img = cv2.imread(os.path.join("./", 'val4.png'))
+            img = cv2.imread(os.path.join("./", 'prothese.png'))
 
             #convert image to PIL format
             img_pil = Image.fromarray(img)
@@ -64,72 +66,80 @@ class Main(Thread):
             is_detected, out_boxes, out_scores, out_classes = self.past_detection.detect_image(img_pil)
             print (out_boxes)
 
-            #computeResults = image.Image(img_pil)
-
-            #image1 = img[int(out_boxes[0][0]):int(out_boxes[0][2]), int(out_boxes[0][1]):int(out_boxes[0][3])]
-            #image2 = img[int(out_boxes[1][0]):int(out_boxes[1][2]), int(out_boxes[1][1]):int(out_boxes[1][3])]
-            #image3 = img[int(out_boxes[2][0]):int(out_boxes[2][2]), int(out_boxes[2][1]):int(out_boxes[2][3])]
-
-            #computeResults.saveImage(img_pil, image1)
-            #computeResults.saveImage(img_pastille, img_pastille)
-
-            #is_detected, out_boxes, out_scores, out_classes = self.past_detection.detect_image(img_pil)
-            #print (out_boxes)
-
-            #print (out_boxes[0][0])
-            #print (type(img2))
-            #print (img2)
-            #print(img.shape)
-            #img2 = cv2.imread(os.path.join("./", '181213_102435_0000000008_CAM1_OK.bmp'))
-            #img = cv2.imread(os.path.join("./", 'CAM1_6.bmp'))
-
-
-            #detect = detection_instance.DetectionInstance(img2)
-            #detect = detection_instance.DetectionInstance(img)
-
             print('init: %0.3f'% (time.time()-start))
             #image = Image(image)
             #gui = GUI(image)
             start = time.time()
+
+            #############################################PART 2##########################################
             if is_detected == True :
 
                 detect = detection_instance.DetectionInstance(img)
-                is_cropped, img_chip = detect.get_chip_area()
+                is_cropped, img_chip = detect.get_chip_area(out_boxes)
                 #image_pastille = img[int(out_boxes[0][0]):int(out_boxes[0][2]), int(out_boxes[0][1]):int(out_boxes[0][3])]
                 computeResults.saveImage(img_chip)
                 #print ("Pastille detectée, image enregistrées. Changez/Tournez la prothèse")
                 time.sleep(3)
                 logging.info("Circle detected")
 
+                #Opencv to PILLOW image
                 img_chip_pil = Image.fromarray(img_chip)
 
-                is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(img_chip_pil)
+                img_chip_pil_rotate = img_chip_pil.copy()
 
-                                #texte1, texte2, texte3 = detect.get_text_area(pil_img_pastille, out_boxes)
+                #is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(img_chip_pil)
+
+                best_scores = np.array([0,0,0], dtype=float)
+                best_boxes = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0]])
+                best_deg = np.array([0,0,0], dtype=int)
 
                 for deg in range(0, 360, 5):
-                    is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(pil_img_pastille)
+                    is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(img_chip_pil_rotate)
                     #nb_max_text_detection = len(out_boxes)
-                    if len(out_boxes) == 3:
-                        img_text1, img_text2, img_text3 = detect.get_text_area(out_boxes)
+                    if len(out_scores) == 3:
+                        #img_text1, img_text2, img_text3 = detect.get_text_area(out_boxes)
                         all_text_is_detected = True
-                        computeResults.saveImage(img_text1)
-                        computeResults.saveImage(img_text2)
-                        computeResults.saveImage(img_text3)
-                    else :
-                        pil_img_pastille.rotate(deg)
-                        print ("Image Rotate...")
-                        print (deg)
-                        all_text_is_detected = False
 
-                if all_text_is_detected == True :
+                        for i in range(len(out_scores)):
+                            if out_scores[i] > best_scores[i]:
+                                best_scores[i] = out_scores[i]
+                                best_deg[i] = deg
+
+                                for y in range(len(out_boxes[i])):
+                                    best_boxes[i][y] = out_boxes[i][y]
+
+                        img_chip_pil_rotate = img_chip_pil.rotate(deg)
+                        open_cv_image = np.array(img_chip_pil_rotate) 
+                        computeResults.saveImage(open_cv_image)
+                    else :
+                        continue
+                #print (best_boxes)
+                #print (best_scores)
+                #print (best_deg)
+
+                if len(best_scores) == 3:
+                    #Crop texts detection
+                    img_text1, img_text2, img_text3 = detect.get_text_area(best_boxes)
+
+                    #Save texte images
+                    computeResults.saveImage(img_text1)
+                    computeResults.saveImage(img_text2)
+                    computeResults.saveImage(img_text3)
+
+                    #Convert to PIL format
                     img_text1_pil = Image.fromarray(img_text1)
                     img_text2_pil = Image.fromarray(img_text2)
                     img_text3_pil = Image.fromarray(img_text3)
 
+                    #############################################PART 3##########################################
+
                     is_detected_t1, out_boxes_t1, out_scores_t1, out_classes_t1 = self.char_detection.detect_image(img_text1_pil)
-                    is_detected_t2, out_boxes_t2 out_scores_t2, out_classes_t2 = self.char_detection.detect_image(img_text2_pil)
-                    is_detected_t3 out_boxes_t3 out_scores_t3, out_classes_t3 = self.char_detection.detect_image(img_text3_pil)
+                    is_detected_t2, out_boxes_t2, out_scores_t2, out_classes_t2 = self.char_detection.detect_image(img_text2_pil)
+                    is_detected_t3, out_boxes_t3, out_scores_t3, out_classes_t3 = self.char_detection.detect_image(img_text3_pil)
+
+                    print (out_boxes_t1)
+                    print (out_boxes_t2)
+                    print (out_boxes_t3)
 
                     lines[0] = str(out_classes_t1)
                     lines[1] = str(out_classes_t2)

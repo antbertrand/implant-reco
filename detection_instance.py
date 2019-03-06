@@ -24,9 +24,9 @@ def frange(start, stop, step):
 class DetectionInstance(object):
     """ A class to detect the implant chip and read the serial number
     """
-    def __init__(self, frame, out_boxes):
+    def __init__(self, frame):
         self.frame = frame
-        self.chip_crop = (out_boxes[0][0], out_boxes[0][1], out_boxes[0][2], out_boxes[0][3])
+        #self.chip_crop = (out_boxes[0][0], out_boxes[0][1], out_boxes[0][2], out_boxes[0][3])
         self.chip = None
         self.texte1 = None
         self.texte2 = None
@@ -36,10 +36,10 @@ class DetectionInstance(object):
         self.text = None
         self.network = EAST_NET
 
-    def get_chip_area(self):
+    def get_chip_area(self, out_boxes):
         """ Cropping and equalization of image
         """
-        image = self.frame[int(self.chip_crop[0]):int(self.chip_crop[2]), int(self.chip_crop[1]):int(self.chip_crop[3])]
+        image = self.frame[int(out_boxes[0][0]):int(out_boxes[0][2]), int(out_boxes[0][1]):int(out_boxes[0][3])]
 
         if len(image.shape) > 2:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

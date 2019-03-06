@@ -14,11 +14,11 @@ class Image(object):
         img = cv2.imread(filename, cv2.COLOR_BGR2GRAY)
         return img
 
-    def saveImage(self, currImg, resizeImg):
+    def saveImage(self, currImg):
         uuid = Image.generateUUID()
         #Image.fromarray(resizeImg).save("./" + str(uuid.uuid4().hex) + ".tiff")
         #cv2.imwrite( "./" + uuid + "resized" + ".png", cv2.cvtColor(resizeImg, cv2.COLOR_RGB2BGR) )
-        cv2.imwrite( "./images/" + uuid + "resized" + ".png", resizeImg)
+        #cv2.imwrite( "./images/" + uuid + "resized" + ".png", resizeImg)
         cv2.imwrite( "./images/" + uuid + "full" + ".png", currImg)
         return "Images Saved"
 

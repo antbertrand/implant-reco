@@ -25,7 +25,7 @@ class YOLO(object):
         "model_path": 'tiny_yolo_weights_char.h5',
         "anchors_path": 'tiny_yolo_anchors_char.txt',
         "classes_path": 'classes_char.txt',
-        "score" : 0.1,
+        "score" : 0.01,
         "iou" : 0.45,
         "model_image_size" : (416, 416),
         #"model_image_size" : (1024, 1024),
