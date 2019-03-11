@@ -41,6 +41,7 @@ class Main(Thread):
  
     #----------------------------------------------------------------------
     def run(self):
+        #init detectors
         self.past_detection = yolo.YOLO()
         self.text_detection = yolo_text.YOLO()
         self.char_detection = yolo_char.YOLO()
@@ -52,7 +53,7 @@ class Main(Thread):
             ##fullimg, img = self.cam.grabbingImage()
 
             #img2 = img.copy()
-            start = time.time()
+            #start = time.time()
             #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = cv2.imread(os.path.join("./", 'prothese.png'))
 
@@ -64,42 +65,35 @@ class Main(Thread):
             computeResults = image.Image(img)
             #Pastille detection
             is_detected, out_boxes, out_scores, out_classes = self.past_detection.detect_image(img_pil)
-            print (out_boxes)
-
-            print('init: %0.3f'% (time.time()-start))
+            #print (out_boxes)
             #image = Image(image)
             #gui = GUI(image)
-            start = time.time()
 
             #############################################PART 2##########################################
+            #Text Detection
             if is_detected == True :
 
                 detect = detection_instance.DetectionInstance(img)
                 is_cropped, img_chip = detect.get_chip_area(out_boxes)
-                #image_pastille = img[int(out_boxes[0][0]):int(out_boxes[0][2]), int(out_boxes[0][1]):int(out_boxes[0][3])]
                 computeResults.saveImage(img_chip)
                 #print ("Pastille detectée, image enregistrées. Changez/Tournez la prothèse")
-                time.sleep(3)
                 logging.info("Circle detected")
 
                 #Opencv to PILLOW image
                 img_chip_pil = Image.fromarray(img_chip)
-
                 img_chip_pil_rotate = img_chip_pil.copy()
 
-                #is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(img_chip_pil)
-
+                #init array results
                 best_scores = np.array([0,0,0], dtype=float)
                 best_boxes = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0]])
                 best_deg = np.array([0,0,0], dtype=int)
 
-                for deg in range(0, 360, 5):
+                #check every image rotate, with 10 deg step
+                for deg in range(0, 360, 10):
+                    #inference function
                     is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(img_chip_pil_rotate)
-                    #nb_max_text_detection = len(out_boxes)
+                    #Check the best score detection for each text
                     if len(out_scores) == 3:
-                        #img_text1, img_text2, img_text3 = detect.get_text_area(out_boxes)
-                        all_text_is_detected = True
-
                         for i in range(len(out_scores)):
                             if out_scores[i] > best_scores[i]:
                                 best_scores[i] = out_scores[i]
@@ -108,18 +102,17 @@ class Main(Thread):
                                 for y in range(len(out_boxes[i])):
                                     best_boxes[i][y] = out_boxes[i][y]
 
+                        #rotate image before saving to visualize... (For dev)
                         img_chip_pil_rotate = img_chip_pil.rotate(deg)
                         open_cv_image = np.array(img_chip_pil_rotate) 
                         computeResults.saveImage(open_cv_image)
+
                     else :
                         continue
-                #print (best_boxes)
-                #print (best_scores)
-                #print (best_deg)
 
                 if len(best_scores) == 3:
                     #Crop texts detection
-                    img_text1, img_text2, img_text3 = detect.get_text_area(best_boxes)
+                    img_text1, img_text2, img_text3 = detect.get_text_area(best_boxes, best_deg[0], best_deg[1], best_deg[2])
 
                     #Save texte images
                     computeResults.saveImage(img_text1)
@@ -132,105 +125,54 @@ class Main(Thread):
                     img_text3_pil = Image.fromarray(img_text3)
 
                     #############################################PART 3##########################################
+                    #Char detection
+                    #Init list of char
+                    list_line1 = []
+                    list_line2 = []
+                    list_line3 = []
 
+                    #inference function
                     is_detected_t1, out_boxes_t1, out_scores_t1, out_classes_t1 = self.char_detection.detect_image(img_text1_pil)
                     is_detected_t2, out_boxes_t2, out_scores_t2, out_classes_t2 = self.char_detection.detect_image(img_text2_pil)
                     is_detected_t3, out_boxes_t3, out_scores_t3, out_classes_t3 = self.char_detection.detect_image(img_text3_pil)
 
-                    print (out_boxes_t1)
-                    print (out_boxes_t2)
-                    print (out_boxes_t3)
+                    #if at least 1 detection by line...
+                    if (is_detected_t1 == True and is_detected_t2 == True and is_detected_t3 == True):
+                        for char in out_classes_t1:
+                            list_line1.append(char)
+                        for char in out_classes_t2:
+                            list_line2.append(char)
+                        for char in out_classes_t3:
+                            list_line3.append(char)
 
-                    lines[0] = str(out_classes_t1)
-                    lines[1] = str(out_classes_t2)
-                    lines[2] = str(out_classes_t3)
+                        #convert from list to concatenated string
+                        list_line1_str = ''.join(map(str, list_line1))
+                        list_line2_str = ''.join(map(str, list_line2))
+                        list_line3_str = ''.join(map(str, list_line3))
 
-                    print (lines[0])
-                    print (lines[1])
-                    print (lines[2])
+                        final_list = [list_line1_str, list_line2_str, list_line3_str]
 
-                    if (lines != None) :
-                        for line in lines :
-                            for char in line:
-                                self.keyboard.send(r)
-                                self.keyboard.send("  ")
+                        #Instructions for sending to Arduino and simulate keystrokes of a keyboard...
+                        #Send string by string
+                        self.keyboard.send(list_line1_str)
+                        self.keyboard.send("  ")
+                        self.keyboard.send(list_line2_str)
+                        self.keyboard.send("  ")
+                        self.keyboard.send(list_line3_str)
 
-                            final_img = computeResults.addSerialNumber(lines)
-                            logging.info("Serial Number written")
-                            #cam.saveImage(fullimg, img)
-                            computeResults.saveImage(final_img)
-                            logging.info("Image saved")
+                        #add Serial Number on the final picture
+                        final_img = computeResults.addSerialNumber(final_list)
+                        logging.info("Serial Number written")
+                        #cam.saveImage(fullimg, img)
+                        computeResults.saveImage(final_img)
+                        logging.info("Image saved")
+
                     else :
-                        continue
-
+                        print ("Unable to find all char. Please move the prosthesis")
+                        logging.info("All char not found")
                 else :
                     print ("Unable to find all text area. Please move the prosthesis")
                     logging.info("All texts not found")
-
-
-
-                #detect = detection_instance.DetectionInstance(img, out_boxes)
-                #opencvImage = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2BGR)
-                #is_cropped, img_pastille = detect.get_chip_area()
-                #print (img_pastille)
-                #logging.info("Picture cropped")
-
-                #computeResults = image.Image(img_pastille)
-                #computeResults.saveImage(img2, img_pastille)
-
-                #print ("detection de texte :")
-
-                #pil_img_pastille = Image.fromarray(img_pastille)
-                # computeResults = image.Image(img_pastille)
-                # computeResults.saveImage(img2, img_pastille)
-
-                #is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(pil_img_pastille)
-                #is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(pil_img_pastille)
-                #print (out_boxes)
-                #computeResults.saveImage(image1, image2)
-                #computeResults.saveImage(image3, img_pastille)
-
-
-                #texte1, texte2, texte3 = detect.get_text_area(pil_img_pastille, out_boxes)
-
-                # for deg in range(0, 360, 5):
-                #     is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(pil_img_pastille)
-                #     if len(out_boxes) >= 1:
-                #         print ("text detection ok")
-                #         print (out_boxes)
-                #         #texte1, texte2, texte3 = detect.get_text_area(pil_img_pastille, out_boxes)
-                #         computeResults.saveImage(text1, texte2)
-                #     else :
-                #         pil_img_pastille.rotate(deg)
-                #         print ("Image Rotate...")
-                #         print (deg)
-
-
-
-                # # detect.get_text_orientations()
-                # # logging.info("Picture Redressed")
-                # # detect.read_text()
-                # print('process: %0.3f'% (time.time()-start))
-                # results = detect.text
-                # logging.info("Text read : %s"% results)
-                # print (results)
-                # logging.info("Keystrokes : %s"% results)
-                # if (results != None) :
-                #     for r in results:
-                #         self.keyboard.send(r)
-                #         self.keyboard.send("	")
-
-                #     img = imutils.rotate(detect.chip, detect.orientation_used)
-                #     #print (img.shape)
-
-                #     computeResults = image.Image(img)
-                #     img = computeResults.addSerialNumber(results)
-                #     logging.info("Serial Number written")
-                #     #cam.saveImage(fullimg, img)
-                #     computeResults.saveImage(fullimg, img)
-                #     logging.info("Image saved")
-                # else :
-                #     continue
             else :
                 print ("Unable to find circle. Please move the prosthesis")
                 logging.info("Circle not found")
@@ -238,6 +180,7 @@ class Main(Thread):
             
             #self.ui.img = self.ui.loadImage(img)
             self.ui.displayImage(img)
+            #print('init: %0.3f'% (time.time()-start))
             #dispResults = gui.GUI(img)
             #img = dispResults.convertToTkImage(img)
             #dispResults.displayImage()
@@ -299,7 +242,7 @@ class ImplantBox():
             self.panel.configure(image=tkimg)
             self.panel.image = tkimg
 
-        print("displayimage")
+        #print("displayimage")
 
 if __name__ == "__main__":
     app = ImplantBox()

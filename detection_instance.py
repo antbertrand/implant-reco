@@ -49,12 +49,16 @@ class DetectionInstance(object):
 
         return True, image
 
-    def get_text_area(self, out_boxes):
+    def get_text_area(self, out_boxes, deg1, deg2, deg3):
         """ Crop for 3 text areas in the chip area
         """
-        self.texte1 = self.chip[int(out_boxes[0][0]):int(out_boxes[0][2]), int(out_boxes[0][1]):int(out_boxes[0][3])]
-        self.texte2 = self.chip[int(out_boxes[1][0]):int(out_boxes[1][2]), int(out_boxes[1][1]):int(out_boxes[1][3])]
-        self.texte3 = self.chip[int(out_boxes[2][0]):int(out_boxes[2][2]), int(out_boxes[2][1]):int(out_boxes[2][3])]
+        rotation1 = imutils.rotate(self.chip, deg1)
+        rotation2 = imutils.rotate(self.chip, deg2)
+        rotation3 = imutils.rotate(self.chip, deg3)
+
+        self.texte1 = rotation1[int(out_boxes[0][0]):int(out_boxes[0][2]), int(out_boxes[0][1]):int(out_boxes[0][3])]
+        self.texte2 = rotation2[int(out_boxes[1][0]):int(out_boxes[1][2]), int(out_boxes[1][1]):int(out_boxes[1][3])]
+        self.texte3 = rotation3[int(out_boxes[2][0]):int(out_boxes[2][2]), int(out_boxes[2][1]):int(out_boxes[2][3])]
 
 
         return self.texte1, self.texte2, self.texte3

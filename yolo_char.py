@@ -25,7 +25,7 @@ class YOLO(object):
         "model_path": 'tiny_yolo_weights_char.h5',
         "anchors_path": 'tiny_yolo_anchors_char.txt',
         "classes_path": 'classes_char.txt',
-        "score" : 0.01,
+        "score" : 0.001,
         "iou" : 0.45,
         "model_image_size" : (416, 416),
         #"model_image_size" : (1024, 1024),
@@ -103,7 +103,7 @@ class YOLO(object):
         return boxes, scores, classes
 
     def detect_image(self, image):
-        start = timer()
+        #start = timer()
 
         if self.model_image_size != (None, None):
             assert self.model_image_size[0]%32 == 0, 'Multiples of 32 required'
@@ -127,7 +127,7 @@ class YOLO(object):
                 K.learning_phase(): 0
             })
 
-        print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
+        #print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
         if len(out_boxes) != 0 :
             is_detected = True
         else : 
@@ -169,8 +169,8 @@ class YOLO(object):
         #     draw.text(text_origin, label, fill=(0, 0, 0), font=font)
         #     del draw
 
-        end = timer()
-        print(end - start)
+        #end = timer()
+        #print(end - start)
         return is_detected, out_boxes, out_scores, out_classes
 
     def close_session(self):

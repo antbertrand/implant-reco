@@ -103,7 +103,7 @@ class YOLO(object):
         return boxes, scores, classes
 
     def detect_image(self, image):
-        start = timer()
+        #start = timer()
 
         if self.model_image_size != (None, None):
             assert self.model_image_size[0]%32 == 0, 'Multiples of 32 required'
@@ -127,7 +127,7 @@ class YOLO(object):
                 K.learning_phase(): 0
             })
 
-        print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
+        #print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
 
         if len(out_boxes) == 1 and not any(elem < 0 for elem in out_boxes[0]) :
             is_detected = True
@@ -170,8 +170,8 @@ class YOLO(object):
         #     draw.text(text_origin, label, fill=(0, 0, 0), font=font)
         #     del draw
 
-        end = timer()
-        print(end - start)
+        #end = timer()
+        #print(end - start)
         return is_detected, out_boxes, out_scores, out_classes
 
     def close_session(self):
