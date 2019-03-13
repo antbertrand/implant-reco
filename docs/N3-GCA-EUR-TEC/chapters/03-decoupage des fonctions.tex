@@ -39,7 +39,7 @@ Fonction permettant de cropper et égaliser l’image autour de la pastille dét
 Input : Image (capturée par la caméra), self.chip_crop (coordonnées de la bounding box détecté)
 Output : Booléen (True si détection, false si pas de détection...), image (image croppée autour de la pastille)
 
-\subsection{get_text_area (img, out_boxes) :}
+\subsection{get_text_area (img, out_boxes, deg1, deg2, deg3) :}
 Fonction permettant de cropper l’image autour des textes détectés. Il y en a 3 par image.
 Input : Image (provenant de l’image croppée get_chip_area), out_boxes (coordonnées des bounding boxes détectés autour des zones de texte)
 Output : Image1, Image2, Image3 (Chaque image représentant une zone de texte)

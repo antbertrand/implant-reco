@@ -1,0 +1,119 @@
+%!TeX root = ../main.tex
+\chapter{Entraînement}
+
+Dans ce chapitre, vous retrouverez en détails les procédures pour l'entrainements des fichiers de poids Tiny Yolo.
+
+\section{Yolo et Tiny Yolo sous Keras}
+
+Le code des entraînements se trouve dans le dossier gcaesthetics-implantbox/train/keras-yolo3-master.
+Les entrainements se font classiquement avec l'envoi et l'execution d'un container Docker sur Paperspace.
+Les fichiers importants a modifier pour lancer/customiser les entraînements sont :
+
+\subsection{run.sh}
+Comme dit précement, le lancement de l'entraînement se fait sur container Docker, envoyé sur des machines Paperspace.
+Le fichier run.sh va executer les commandes ligne par ligne.
+
+\subsection{train.py}
+C'est le script de lancement de l'entraînement.
+Concrètement, les seuls paramètres a modifier dans ce fichiers sont :
+\begin{itemize}
+    \item anchors_path : Chemin d'accés du fichiers d'anchors.
+    \item classes_path : Chemin d'accés du fichier de classes.
+    \item input_shape : Taille des "input", comprendre la taille des photos en entrée. Cette valeurs doit forcément être un multiple de 32.
+    \item Les paramètres d'entrainements plus bas dans le fichier au besoin (comme le batch_size, l'archi, etc...)
+\end{itemize}
+
+\subsection{convert_to_voc.py}
+Permet de convertir les annotations from supervisely to keras yolo dans un fichier de sortie /artifact/train.txt, qui sera utilisé dans train.py.
+Il est généré avant chaque lancement d'entraînement.
+Il prends en entrée :
+\begin{itemize}
+    \item image_path : Chemin d'accés du dossier d'image d'un dataset donné.
+    \item annot_path : Chemin d'accés du dossier d'annotations d'un dataset donné.
+\end{itemize}
+
+\subsection{Datasets}
+Tous les datasets sont disponibles dans le bucket S3.
+Ils sont synchronisés dans la partition /storage/.
+Evidemment, tous ces datasets sur le projet Eurosilicone sont provisoires,
+
+\subsubsection{Détection des pastilles}
+\begin{itemize}
+    \item pastilles : dataset constitué avec la 1ère caméra couleur, pour la détection de pastilles, sans égalisation ni cropping/redressement.
+\end{itemize}
+
+\subsubsection{Détection de textes}
+\begin{itemize}
+    \item textes : dataset constitué avec la 1ère caméra couleur/focale, redressées
+    \item textes_equal : dataset « textes », avec les images égualisées
+    \item textes_20mpx : dataset constitué avec la caméra monochrome 20mpx, images redressés
+    \item textes_20mpx_equal : dataset « textes_20mpx », contenant les même images égualisées
+\end{itemize}
+
+\subsubsection{Détection de caractères}
+\begin{itemize}
+    \item lettres_equal : dataset constitué avec la caméra monochrome 20mpx. Comprend les images croppées et redréssées autour des pastilles.
+    \item lettres_equal_crop : dataset « lettres_equal », avec cropping autour des textes
+\end{itemize}
+
+\subsection{Resultats de l'entraînement}
+
+En sortie d'entraînement, nous avons un fichier de poids .h5
+Ce fichier est généré dans le dossier /artifacts sur Paperspace.
+
+\subsection{Evaluation de l'entraînement}
+
+Pour la phase d'evaluation, nous allons executer l'inférence sur un dossier de photos jamais vues par l'algorithme.
+Pour des questions pratiques de developpement, j'execute les inferences en local (commande : make debug), mais il est possible de l'executer sur Paperspace a la suite d'un entrainement...
+
+\subsection{yolo_video.py}
+
+Fichier permettant l'execution des inference. Les commandes a lancer sont :
+\begin{lstlisting}[style=console]
+    Air-de-Corentin:keras-yolo3-master cdidriche$ : make debug
+    root@75120bff2ed0:/paperspace# : python3 yolo_video.py --image
+    root@75120bff2ed0:/paperspace# : ./images_to_infer
+    [.......]
+\end{lstlisting}
+
+\begin{itemize}
+    \item make debug : Execution du container en local
+    \item python3 yolo_video.py --image : Permet de lancer le script d'inférence
+    \item ./images_to_infer : est le path contenant les images a inférer. Le script va boucler sur toutes les images du dossier en question. Un fichier inference_result.txt est généré dans ./model_data. Il va nous servir pour le calcul du mAP derrière, et donc, d'avoir une métrique d'évaluation significative
+\end{itemize}
+
+Par défault, les chemins sont en "dur", un dossier model_data qui contient les fichiers .h5, classes.txt, anchors.txt dans le fichier yolo.py.
+C'est pas très smart ni user-friendly, mais au moins ca permet de ne pas faire d'erreurs de dossier/fichiers quand on utilise un même detecteur pour 3 cas différents...
+
+\subsection{Calcul du mAP}
+
+Pour calculer le mAP, on utilise une série de script qui permet d'avoir une evaluation "générique".
+Le code du calcul de mAP se situe dans ./train/mAP
+
+Avant de lancer le calcul du mAP, il faut génerer pour chaque image, un fichier "ground-truth" et un fichier "predicted objects".
+Pour les générer simplement, un scripts sont a disposition pour convertir les annotations : convert_keras-yolo3.py
+\begin{itemize}
+    \item Depuis le fichier "train.txt" (sortie du script convert_to_voc.py), vers le dossier "ground-truth".
+    \item Depuis le fichier "inference_result.txt" (sortie du script d'inference Yolo), vers le dossier "predicted".
+\end{itemize}
+
+Le script pour fonctionner a besoin des fichiers :
+\begin{itemize}
+    \item class_list.txt : Fichier contenant la liste des classes, disponible dans ./extra
+    \item train.txt OU inference_result.txt : Fichier contenant les annotations, disponible dans
+\end{itemize}
+
+\begin{lstlisting}[style=console]
+    Air-de-Corentin:mAP-master cdidriche$ cd extra/
+    Air-de-Corentin:extra cdidriche$ python3 convert_keras-yolo3.py -o ../ground-truth/ -r --gt ../ground-truth/train.txt
+    [.......]
+    Air-de-Corentin:extra cdidriche$ python3 convert_keras-yolo3.py -o ../predicted/ -r --pred ../predicted/inference_result.txt
+    [.......]
+    Air-de-Corentin:mAP-master cdidriche$ python3 main.py
+    100.00% = m AP
+    100.00% = text AP
+    mAP = 100.00%
+\end{lstlisting}
+
+En sortie, on dispose de tout un ensemble de graphique et meusure representant le mAP globale, par classe, etc...
+Ces résultats sont diponibles et consultables dans le dossier /mAP-master/results

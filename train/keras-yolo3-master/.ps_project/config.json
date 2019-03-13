@@ -1,0 +1,8 @@
+{
+  "project": "keras-yolo3-master",
+  "machineType": "V100",
+  "container": "ufoym/deepo",
+  "command": "L3BhcGVyc3BhY2UvcnVuLXBhcGVyc3BhY2Uuc2g=",
+  "lastJobId": "jj4wjfkvgjbzl",
+  "workspace": "/Users/cdidriche/Downloads/keras-yolo3-master"
+}

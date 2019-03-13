@@ -1,0 +1,4 @@
+/paperspace/image_to_infer/val4.png 29,20,634,544,0,0.50776136
+/paperspace/image_to_infer/val2.png -32,27,613,519,0,0.66717863
+/paperspace/image_to_infer/val3.png -19,78,608,532,0,0.32627022
+/paperspace/image_to_infer/val1.png 86,-26,512,490,0,0.36999786

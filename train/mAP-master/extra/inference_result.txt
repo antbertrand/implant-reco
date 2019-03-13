@@ -1,0 +1,2 @@
+/storage/dataset/lettres_equal_crop/img/69887cd53241446aa41fa6e8fa3dc5b1resized.png 19,9,209,99,0,0.9385284
+/storage/dataset/lettres_equal_crop/img/69887cd53241446aa41fa6e8fa3dc5b1resized.png 23,12,66,90,23,0.9267351
