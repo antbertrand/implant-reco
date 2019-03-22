@@ -35,7 +35,10 @@ Il prends en entrée :
 \subsection{Datasets}
 Tous les datasets sont disponibles dans le bucket S3.
 Ils sont synchronisés dans la partition /storage/.
-Evidemment, tous ces datasets sur le projet Eurosilicone sont provisoires,
+Evidemment, tous ces datasets sur le projet Eurosilicone sont provisoires, et devront être complétés.
+
+Pour des raisons evidente de "rapiditée", les datasets ont été constitués des photos redimensionnées, en 10920*1080. (Format image provenant de la caméra : 5472*3648).
+Par la suite, il serait donc opportun de constituer le dataset avec des photos "plein format" (5472*3648), au maximum de la résolution de la caméra, pour obtenir les images de pastille les plus "propres" possible.
 
 \subsubsection{Détection des pastilles}
 \begin{itemize}
@@ -44,16 +47,16 @@ Evidemment, tous ces datasets sur le projet Eurosilicone sont provisoires,
 
 \subsubsection{Détection de textes}
 \begin{itemize}
-    \item textes : dataset constitué avec la 1ère caméra couleur/focale, redressées
-    \item textes_equal : dataset « textes », avec les images égualisées
-    \item textes_20mpx : dataset constitué avec la caméra monochrome 20mpx, images redressés
-    \item textes_20mpx_equal : dataset « textes_20mpx », contenant les même images égualisées
+    \item textes : dataset constitué avec la 1ère caméra couleur/focale, redressées.
+    \item textes_equal : dataset « textes », avec les images égualisées.
+    \item textes_20mpx : dataset constitué avec la caméra monochrome 20mpx, images redressés.
+    \item textes_20mpx_equal : dataset « textes_20mpx », contenant les même images égualisées.
 \end{itemize}
 
 \subsubsection{Détection de caractères}
 \begin{itemize}
     \item lettres_equal : dataset constitué avec la caméra monochrome 20mpx. Comprend les images croppées et redréssées autour des pastilles.
-    \item lettres_equal_crop : dataset « lettres_equal », avec cropping autour des textes
+    \item lettres_equal_crop : dataset « lettres_equal », avec cropping autour des textes.
 \end{itemize}
 
 \subsection{Resultats de l'entraînement}
@@ -99,8 +102,8 @@ Pour les générer simplement, un scripts sont a disposition pour convertir les 
 
 Le script pour fonctionner a besoin des fichiers :
 \begin{itemize}
-    \item class_list.txt : Fichier contenant la liste des classes, disponible dans ./extra
-    \item train.txt OU inference_result.txt : Fichier contenant les annotations, disponible dans
+    \item class_list.txt : Fichier contenant la liste des classes.
+    \item train.txt OU inference_result.txt : Fichier contenant les annotations.
 \end{itemize}
 
 \begin{lstlisting}[style=console]
