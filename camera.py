@@ -10,14 +10,13 @@ class Camera(object):
     def __init__(self):
         self.last_timestamp = 0
         self.timestamp = 0
-        self.conf = "NodeMap.pfs"
         self.first_device = py.TlFactory.GetInstance().CreateFirstDevice()
         self.instant_camera = py.InstantCamera(self.first_device)
         self.instant_camera.Open()
         #self.instant_camera.PixelFormat = 'RGB8'
 
-    def loadConf(self):
-        py.FeaturePersistence.Load(self.conf, self.instant_camera.GetNodeMap())
+    def loadConf(self, confname):
+        py.FeaturePersistence.Load(confname, self.instant_camera.GetNodeMap())
         return "Config Loaded"
 
     def saveConf(self):

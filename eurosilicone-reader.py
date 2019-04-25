@@ -26,10 +26,10 @@ __maintainer__ = "Pierre-Julien Grizel"
 __email__ = "pjgrizel@numericube.com"
 __status__ = "Production"
 
+import tempfile
 import camera
 import detection_instance
 import image
-import gui
 import cv2
 import os
 import imutils
@@ -59,7 +59,7 @@ class EurosiliconeReader(object):
         logging.info("Camera detected")
         #self.cam.saveConf()
         #logging.info("Camera configuration saved")
-        self.cam.loadConf()
+        self.cam.loadConf("acA5472-17um.pfs")
         logging.info("Camera configuration loaded")
 
         # Start detectors
@@ -91,6 +91,9 @@ class EurosiliconeReader(object):
             else:
                 print ("Unable to find circle. Please move the prosthesis")
                 logging.info("Circle not found")
+                with tempfile.NamedTemporaryFile(suffix=".png") as fp:
+                    img_pil.save(fp.name)
+                    os.system("img2txt -f ansi -W 100 {}".format(fp.name))
 
             # self.ui.displayImage(img)
 
