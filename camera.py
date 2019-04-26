@@ -15,7 +15,7 @@ class Camera(object):
         self.instant_camera.Open()
         #self.instant_camera.PixelFormat = 'RGB8'
 
-    def loadConf(self, confname):
+    def loadConf(self, confname="NodeMap.pfs"):
         py.FeaturePersistence.Load(confname, self.instant_camera.GetNodeMap())
         return "Config Loaded"
 

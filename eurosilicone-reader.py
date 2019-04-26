@@ -27,20 +27,22 @@ __email__ = "pjgrizel@numericube.com"
 __status__ = "Production"
 
 import tempfile
+import time
+import os
+import logging
+
 import camera
 import detection_instance
 import image
 import cv2
-import os
 import imutils
-import time
-import logging
 import yolo
 import yolo_text
 import yolo_char
 from PIL import Image, ImageTk
 from threading import Thread
 from PIL import Image
+from settings import *
 # from keyboard import Keyboard
 
 #LOGGER = logging.getLogger(__name__)
@@ -79,21 +81,29 @@ class EurosiliconeReader(object):
             # Pastille detection, save image on-the-fly
             is_detected, out_boxes, out_scores, out_classes = self.past_detection.detect_image(img_pil)
             
-
-            # Text Detection
+            # Text Detection if pastille is detected
             if is_detected:
+                # Get detected zone
                 detect = detection_instance.DetectionInstance(fullimg)
                 is_cropped, img_chip = detect.get_chip_area(out_boxes)
-                # computeResults.saveImage(img_chip)
-                print ("Image saved. Change/Turn prothesis")
-                logging.info("Circle detected")
+
+                # Save chip image
+                output_fn = os.path.join(ACQUISITIONS_PATH, "CHIP-{}.png".format(time.strftime("%Y-%m-%d-%H%M%S")))
+                Image.fromarray(img_chip).save(output_fn)
                 print ("Image saved")
+                #img_chip.save(output_fn)
+
+                # computeResults.saveImage(img_chip)
+                print ("Image saved. Change/Turn prothesis. Waiting 5s before detecting again.")
+                time.sleep(5)
+                logging.info("Circle detected")
+
             else:
                 print ("Unable to find circle. Please move the prosthesis")
                 logging.info("Circle not found")
-                with tempfile.NamedTemporaryFile(suffix=".png") as fp:
-                    img_pil.save(fp.name)
-                    os.system("img2txt -f ansi -W 100 {}".format(fp.name))
+                #with tempfile.NamedTemporaryFile(suffix=".png") as fp:
+                #    img_pil.save(fp.name)
+                #    os.system("img2txt -f ansi -W 100 {}".format(fp.name))
 
             # self.ui.displayImage(img)
 
