@@ -40,6 +40,7 @@ import imutils
 import yolo
 import yolo_text
 import yolo_char
+from utils import detect_text, get_circles, microsoft_detection_text
 from PIL import Image, ImageTk
 from threading import Thread
 from PIL import Image
@@ -53,8 +54,8 @@ class EurosiliconeReader(object):
     """Singleton class
     """
 
-    def process_chip(self, img_chip):
-        """Process chip
+    def get_chip_angle(self, img_chip):
+        """Return chip angle OR None if no text has been found.
         """
         #Opencv to PILLOW image
         img_chip_pil = Image.fromarray(img_chip)
@@ -65,27 +66,47 @@ class EurosiliconeReader(object):
         best_boxes = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0]])
         best_deg = np.array([0,0,0], dtype=int)
 
-        #check every image rotate, with 10 deg step
+        # Check every image rotate, with 10 deg step
+        best_score = 0.0
+        got_it = False
         for deg in range(0, 360, 10):
-            #inference function
+            # Rotate image
+            img_chip_pil_rotate = img_chip_pil.rotate(deg)
+
+            # Inference function. We want to detect THREE lines of text so we ignore if we have less than that.
+            # Then we compute the best score and keep it
             is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(img_chip_pil_rotate)
-            #Check the best score detection for each text
-            if len(out_scores) == 3:
-                for i in range(len(out_scores)):
-                    if out_scores[i] > best_scores[i]:
-                        best_scores[i] = out_scores[i]
-                        best_deg[i] = deg
-
-                        for y in range(len(out_boxes[i])):
-                            best_boxes[i][y] = out_boxes[i][y]
-
-                #rotate image before saving to visualize... (For dev)
-                img_chip_pil_rotate = img_chip_pil.rotate(deg)
-                open_cv_image = np.array(img_chip_pil_rotate) 
-                #computeResults.saveImage(open_cv_image)
-
-            else :
+            if len(out_scores) < 2:    # Ok, we authorize 2 lines
                 continue
+            got_it = True
+            sum_scores = np.sum(out_scores)
+            print("Deg {}: {}, {}".format(deg, sum_scores, self.text_detection.detect_image(img_chip_pil_rotate)))
+
+            # Keep only the best angle
+            if sum_scores > best_score:
+                best_score = sum_scores
+                best_deg = np.array([deg, deg, deg], dtype=int)
+
+        # Display some information about what we detected
+        if not got_it:
+            print("NO TEXT DETECTED")
+            return None
+        print("BEST ANGLE: {}".format(best_deg))
+        return best_deg[0]
+
+
+    def get_text_from_azure(self, img_chip, angle):
+        """From the given angle, automate reading from Azure
+        """
+        img_rot = imutils.rotate(img_chip, angle)
+        image_data = cv2.imencode('.jpg', img_rot)[1].tostring()
+        data = microsoft_detection_text(image_data)
+        if not "recognitionResult" in data:
+            print("NOTHING READ.")
+            return
+        for line in data['recognitionResult']['lines']:
+            print(line['text'])
+        return
 
         if len(best_scores) == 3:
             #Crop texts detection
@@ -209,10 +230,12 @@ class EurosiliconeReader(object):
             #img_chip.save(output_fn)
 
             # Get additional info
-            #self.process_chip(img_chip)
+            best_angle = self.get_chip_angle(img_chip)
+            if best_angle is not None:
+                self.get_text_from_azure(img_chip, best_angle)
 
             # computeResults.saveImage(img_chip)
-            print ("Image saved. Change/Turn prothesis. Waiting 5s before detecting again.")
+            print("Image saved. Change/Turn prothesis. Waiting 5s before detecting again.")
             time.sleep(5)
             logging.info("Circle detected")
 
