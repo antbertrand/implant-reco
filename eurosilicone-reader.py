@@ -192,6 +192,7 @@ class EurosiliconeReader(object):
         self.char_detection = yolo_char.YOLO()
 
         # Until death stikes, we read images continuously.
+        print("START READING...")
         while True:
             # Grab image from camera
             fullimg, img = self.cam.grabbingImage()
@@ -205,7 +206,6 @@ class EurosiliconeReader(object):
             # in order to avoid keeping/getting blurry images.
             is_detected, out_boxes, out_scores, out_classes = self.past_detection.detect_image(img_pil)
             if not is_detected:
-                print("Unable to find circle. Move the object.")
                 continue
 
             print("DON'T MOVE!")
@@ -240,6 +240,7 @@ class EurosiliconeReader(object):
             logging.info("Circle detected")
 
             # self.ui.displayImage(img)
+            print("START READING...")
 
 if __name__ == '__main__':
     ec = EurosiliconeReader()
