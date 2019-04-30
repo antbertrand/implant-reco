@@ -81,7 +81,7 @@ class EurosiliconeReader(object):
 
                 #rotate image before saving to visualize... (For dev)
                 img_chip_pil_rotate = img_chip_pil.rotate(deg)
-                open_cv_image = np.array(img_chip_pil_rotate) 
+                open_cv_image = np.array(img_chip_pil_rotate)
                 #computeResults.saveImage(open_cv_image)
 
             else :
@@ -150,7 +150,7 @@ class EurosiliconeReader(object):
         else :
             print ("Unable to find all text area. Please move the prosthesis")
             logging.info("All texts not found")
-            
+
 
     def main(self,):
         """Main program loop.
@@ -195,7 +195,7 @@ class EurosiliconeReader(object):
             if not is_detected:
                 print("You moved...")
                 continue
-        
+
             # Get detected zone
             self.detect = detection_instance.DetectionInstance(fullimg)
             is_cropped, img_chip = self.detect.get_chip_area(out_boxes)
