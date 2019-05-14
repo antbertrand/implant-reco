@@ -7,6 +7,8 @@ import imutils
 import random
 
 
+#Script the will create the dataset with the 360 rotations of each image
+
 IMAGES_PATH = '/storage/eurosilicone/img_corr_resized/'
 OUTPUT_PATH = '/storage/eurosilicone/ds_rotated/'
 images = os.listdir(IMAGES_PATH)
@@ -28,14 +30,14 @@ for index, im in enumerate(images):
     if not os.path.exists(dir_val):
             os.makedirs(dir_val)
 
-    ndir = index%5
+    ndir = index%8
 
 
-    if ndir >=0 and ndir <3:
+    if ndir >=0 and ndir <6:
         dir_final = dir_train
-    if ndir ==3:
+    if ndir ==6:
         dir_final = dir_val
-    if ndir ==4:
+    if ndir ==7:
         dir_final = dir_test
 
 
@@ -43,18 +45,16 @@ for index, im in enumerate(images):
 
         img3 = imutils.rotate(img2,k)
 
-        output_dir = dir_final + str(k) + '/'
+        k_3 = "{:03d}".format(k)
+        output_dir = dir_final + str(k_3) + '/'
         print(output_dir)
 
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-
-
-
-
         cv2.imwrite( output_dir+im, img3 )
 
-    print('image ', k, 'done')
+
+    print('im', index, 'done')
 
 
     print('finito')

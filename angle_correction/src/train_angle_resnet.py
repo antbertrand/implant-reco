@@ -17,8 +17,9 @@ from keras import backend as K
 from keras import metrics
 
 
-DATA_DIR = '/storage/eurosilicone/ds_rotated/'
 
+
+DATA_DIR = '/storage/eurosilicone/ds_rotated/'
 
 
 HEIGHT = 224
@@ -59,8 +60,8 @@ test_generator = test_datagen.flow_from_directory(
     shuffle = False)
 
 
-
-
+#================== Angle_error metric =========================
+# Functions to compute the angle_error metric
 
 def angle_difference(x, y):
     """
@@ -80,10 +81,10 @@ def angle_error(y_true, y_pred):
 
 
 
+#================== Model creation =========================
+# Model = Resnet50 without top classifier / without freezing layers
 
-
-# SOLUTION 3 InceptionV3 simple sans préentrainement du top classifier
-from keras.optimizers import Adam, SGD, Adadelta
+from keras.optimizers import Adam
 from keras.layers import Dense, Dropout, Flatten, Input
 from keras.layers import Conv2D, MaxPooling2D
 from keras.models import Model
@@ -117,46 +118,40 @@ model.compile(loss='categorical_crossentropy',
 
 
 
-
-'''
-
-# set the first 25 layers (up to the last conv block)
-# to non-trainable (weights will not be updated)
-for layer in model.layers[:10]:
-    layer.trainable = False
-
-'''
-
-
+#================== Training model =========================
 
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard, ReduceLROnPlateau
 from time import time
 
 
 # training parameters
-batch_size = 4
-nb_epoch = 200
+batch_size = 32
+nb_epoch = 30
 n_train_samples = len(train_generator) * batch_size
 n_val_samples = len(validation_generator) * batch_size
 
 
-output_folder = '/artifacts/models'
+output_folder = '/artifacts/models/'
 
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
-# callbacks
+# Callback functions
+
 monitor = 'val_angle_error'
+
+# Always saving the model with the best val_angle_error
 checkpointer = ModelCheckpoint(
     filepath=os.path.join(output_folder, model_name + '.hdf5'),
     monitor=monitor,
+    verbose = 2,
+    mode = 'min',
     save_best_only=True
 )
 reduce_lr = ReduceLROnPlateau(monitor=monitor, factor = 0.3, patience=3)
 early_stopping = EarlyStopping(monitor=monitor, patience=5)
 tensorboard = TensorBoard(log_dir='/artifacts/logs/{}'.format(time()))
 
-#K.clear_session()
 
 history = model.fit_generator(
     train_generator,
