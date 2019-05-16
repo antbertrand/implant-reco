@@ -58,14 +58,13 @@ class DetectionInstance(object):
         mask = np.zeros(size, np.uint8)
         x0 = int((size[0] / 2))
         y0 = int((size[1] / 2))
-        r0 = int((size[1] + size[0]) / 4 * 0.55)
+        r0 = int((size[1] + size[0]) / 4)
         cv2.circle(mask, (x0, y0), r0, (255, 255, 255), -1)
-        mask_inv = cv2.bitwise_not(mask)
-        image = cv2.bitwise_and(image, image, mask=mask_inv)
+        masked_im = cv2.bitwise_and(image, image, mask=mask)
 
         # WTF return signature (?!)
-        self.chip = image
-        return True, image
+        self.chip = masked_im
+        return True, masked_im
 
     def get_text_area(self, out_boxes, deg1, deg2, deg3):
         """ Crop for 3 text areas in the chip area
