@@ -123,18 +123,18 @@ class EurosiliconeReader(object):
             img_text3_pil = Image.fromarray(img_text3)
 
             #############################################PART 3##########################################
-            #Char detection
-            #Init list of char
+            # Char detection
+            # Init list of char
             list_line1 = []
             list_line2 = []
             list_line3 = []
 
-            #inference function
+            # inference function
             is_detected_t1, out_boxes_t1, out_scores_t1, out_classes_t1 = self.char_detection.detect_image(img_text1_pil)
             is_detected_t2, out_boxes_t2, out_scores_t2, out_classes_t2 = self.char_detection.detect_image(img_text2_pil)
             is_detected_t3, out_boxes_t3, out_scores_t3, out_classes_t3 = self.char_detection.detect_image(img_text3_pil)
 
-            #if at least 1 detection by line...
+            # if at least 1 detection by line...
             if (is_detected_t1 == True and is_detected_t2 == True and is_detected_t3 == True):
                 for char in out_classes_t1:
                     list_line1.append(char)

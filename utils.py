@@ -160,21 +160,3 @@ def microsoft_detection_text(image_data):
         except Exception as e:
             print("[Errno {0}] {1}".format(e.errno, e.strerror))
     return data
-
-
-
-def angle_difference(x, y):
-    """
-    Calculate minimum difference between two angles.
-    """
-    return 180 - abs(abs(x - y) - 180)
-
-def angle_error(y_true, y_pred):
-    """
-    Calculate the mean diference between the true angles
-    and the predicted angles. Each angle is represented
-    as a binary vector.
-    """
-    diff = angle_difference(K.argmax(y_true), K.argmax(y_pred))
-    print(K.argmax(y_true), K.argmax(y_pred))
-    return K.mean(K.cast(K.abs(diff), K.floatx()))
