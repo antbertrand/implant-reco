@@ -1,2 +1,0 @@
-keras_retinanet/bin/train.py --batch-size=1 --backbone=mobilenet160_1.0 --steps=10 csv ~/Documents/NumeriCube/eurosilicone/dataset/resized_x10/2/ann_test.csv ~/Documents/NumeriCube/eurosilicone/dataset/resized_x10/2/class_mapping.csv
-
