@@ -75,11 +75,11 @@ class OrientationFixer(object):
         return base64.b64encode(hash_md5.digest()).decode("ascii")
 
     def __init__(self,
-        model_path="/var/eurosilicone/models/rotnet_chip_resnet50.hdf5",
-        container_name="weights",
-        blob_name="rotnet_chip_resnet50.hdf5",
-        model_connection_string="BlobEndpoint=https://eurosilicone.blob.core.windows.net/;QueueEndpoint=https://eurosilicone.queue.core.windows.net/;FileEndpoint=https://eurosilicone.file.core.windows.net/;TableEndpoint=https://eurosilicone.table.core.windows.net/;SharedAccessSignature=sv=2018-03-28&ss=bfqt&srt=sco&sp=rwdlacup&se=2022-05-16T17:59:47Z&st=2019-05-16T09:59:47Z&spr=https&sig=svg3ojRIIKLE7%2Bje2e5Rz0TRibz5wasE75HmljLL67A%3D",
-        ):
+                 model_path="/var/eurosilicone/models/rotnet_chip_resnet50.hdf5",
+                 container_name="weights",
+                 blob_name="rotnet_chip_resnet50.hdf5",
+                 model_connection_string="BlobEndpoint=https://eurosilicone.blob.core.windows.net/;QueueEndpoint=https://eurosilicone.queue.core.windows.net/;FileEndpoint=https://eurosilicone.file.core.windows.net/;TableEndpoint=https://eurosilicone.table.core.windows.net/;SharedAccessSignature=sv=2018-03-28&ss=bfqt&srt=sco&sp=rwdlacup&se=2022-05-16T17:59:47Z&st=2019-05-16T09:59:47Z&spr=https&sig=svg3ojRIIKLE7%2Bje2e5Rz0TRibz5wasE75HmljLL67A%3D",
+                 ):
         """Pre-load model if not already on disk
         """
         # Check if file exists / is fresh

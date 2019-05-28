@@ -6,14 +6,20 @@ import os
 
 import cv2
 import imutils
+import numpy as np
 
-
-
-
-
-IMAGES_PATH = "/storage/eurosilicone/ds_corr_resized/img_train/img_corr/"
-OUTPUT_PATH = "/storage/eurosilicone/ds_rotated/train/"
+#IMAGES_PATH = "/storage/eurosilicone/ds_corr_resized/img_train/img_corr/"
+#OUTPUT_PATH = "/storage/eurosilicone/ds_rotated/train/"
+IMAGES_PATH = "/home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/step3_orientationfixer/without_crop/img_test/img_corr/"
+OUTPUT_PATH = "/home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/step3_orientationfixer/without_crop/img_test/rotated/"
 IMAGES = os.listdir(IMAGES_PATH)
+SIDE = 224
+RAYON = int(224/2)
+mask = np.zeros((SIDE,SIDE), np.uint8)
+
+# draw the outer circle
+cv2.circle(mask,(RAYON,RAYON),RAYON,(255,255,255),-1)
+
 
 for index, im in enumerate(IMAGES):
 
@@ -33,7 +39,8 @@ for index, im in enumerate(IMAGES):
             os.makedirs(output_dir)
 
         # Saves image in folder k_3
-        cv2.imwrite(output_dir + im, img3)
+        masked_data = cv2.bitwise_and(img3, img3, mask=mask)
+        cv2.imwrite( output_dir+im, masked_data )
 
     print("im", index, "done")
 

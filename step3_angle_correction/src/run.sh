@@ -25,10 +25,15 @@ pip install Pillow
 #mkdir /artifacts/logs
 
 #rm -r /storage/eurosilicone/ds_rotated
+#rm -r /storage/eurosilicone/img_corr_resized/
+#rm -r /storage/eurosilicone/ds_corr_resized/
 #mkdir /storage/eurosilicone/ds_rotated
+#mkdir /storage/eurosilicone/ds_rotated/train
+#mkdir /storage/eurosilicone/ds_rotated/val
+#mkdir /storage/eurosilicone/ds_rotated/test
 # mkdir /storage/test/masks/
 #
-#mv /paperspace/img_corr_resized /storage/eurosilicone
+#mv /paperspace/ds_corr_resized /storage/eurosilicone/
 
 
 python3 test.py
