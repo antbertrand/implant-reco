@@ -3,6 +3,7 @@
 
 
 import os
+import glob
 
 import numpy as np
 import random
@@ -147,7 +148,7 @@ def generate_letter(letter, angle=0):
         else:
             # Chooses a random value for the alpha channel
             newData.append(
-                (item[0], item[1], item[2], random.randint(80, 120)))
+                (item[0], item[1], item[2], random.randint(120, 150)))
 
     img.putdata(newData)
 
@@ -175,7 +176,7 @@ def generate_letter(letter, angle=0):
     # img = img.astype(int)
 
     # print(type(img))
-    img.save('.letter.png')
+    #img.save('.letter.png')
     return img, img.size
 
 
@@ -224,7 +225,7 @@ def print_text(dispo, im):
             boxes.append(box)
             caracs.append(carac)
             im = im.convert("RGB")
-            print(im.mode)
+            #print(im.mode)
 
             im.paste(caracter_t, (x, y), caracter_t)
 
@@ -236,7 +237,7 @@ def print_text(dispo, im):
 def generate_chip():
 
     BG_PATH = './backgrounds/'
-    bgs = os.listdir(BG_PATH)
+    bgs = glob.glob('{}*.png'.format(BG_PATH))
     # Different dispositions on the chip for the different lines :  'n' : number
     #                                                               'c' : letter c
     #                                                               'l' : letter
@@ -255,14 +256,14 @@ def generate_chip():
 
     # Randomly choose background
     #bg = cv2.imread(BG_PATH + bgs[random.randint(0,6)])
-    bg = Image.open(BG_PATH + bgs[random.randint(0, 6)])
+    bg = Image.open(random.choice(bgs))
     bg = bg.resize((1580, 1580))
     chip, boxes, caracs = print_text(dispo, bg)
 
     # Add deteriorations
     chip_final, _ = add_parallel_light(chip)
 
-    cv2.imwrite('./CHIP.png', chip_final)
+    #cv2.imwrite('./CHIP.png', chip_final)
 
     return chip_final, boxes, caracs
 

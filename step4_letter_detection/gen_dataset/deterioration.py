@@ -106,7 +106,7 @@ def generate_parallel_light_mask(mask_size,
                                  position=None,
                                  direction=None,
                                  max_brightness=255,
-                                 min_brightness=0,
+                                 min_brightness=50,
                                  mode="gaussian",
                                  linear_decay_rate=None):
     """
