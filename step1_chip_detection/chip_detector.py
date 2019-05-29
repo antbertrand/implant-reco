@@ -101,6 +101,7 @@ class ChipDetector():
         # correct for image scale
         boxes *= scale1 / scale2
 
+
         for box, score, label in zip(boxes[0], scores[0], labels[0]):
             print(box, score, label)
 

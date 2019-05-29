@@ -1,12 +1,11 @@
-# Chip detection
+# Chip Detection Enhancement
 
-The goal here is to detect precisly where the chip is on the implant.
+The goal here is to find the circle of the chip using Hough Circle Transform method.
+This is applied on the images we obtained after the Chip Detection part.
 
-## Getting Started
+## Role
 
-The detector used is RetinaNet (Lin, Goyal et al. 2017) <br />
-To learn more about the way it works : [link](https://blog.zenggyu.com/en/post/2018-12-05/retinanet-explained-and-demystified/)<br />
-The implementation used is an implementation of RetinaNet in Keras : [keras_retinanet](https://github.com/fizyr/keras-retinanet)
+This part is used to find precisly the localization of the circle.
 
 To test the detection on some images, clone this repo on your machine.
 

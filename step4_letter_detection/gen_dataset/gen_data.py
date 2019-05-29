@@ -2,7 +2,6 @@
 # coding: utf-8
 
 
-
 import os
 
 import numpy as np
@@ -14,19 +13,18 @@ from PIL import Image, ImageFont, ImageDraw, ImageFilter
 from deterioration import add_parallel_light
 
 
-
 BG_PATH = './backgrounds/'
 CARAC_PATH = './caracters/'
 
 
 img = cv2.imread(BG_PATH + '4.png')
-overlay_t = cv2.imread(CARAC_PATH+ 'letter_4.png',-1) # -1 loads with transparency
-
-
-
+overlay_t = cv2.imread(CARAC_PATH + 'letter_4.png', -
+                       1)  # -1 loads with transparency
 
 
 print(overlay_t.shape)
+
+
 def overlay_caracter(background_img, caracter_t, x, y, overlay_size=None):
     """
     @brief      Overlays a transparant PNG onto another image using CV2
@@ -46,29 +44,27 @@ def overlay_caracter(background_img, caracter_t, x, y, overlay_size=None):
         caracter_t = cv2.resize(caracter_t.copy(), overlay_size)
 
     # Extract the alpha mask of the RGBA image, convert to RGB
-    #print(caracter_t.shape)
-    b,g,r,a = cv2.split(caracter_t)
-    overlay_color = cv2.merge((b,g,r))
+    # print(caracter_t.shape)
+    b, g, r, a = cv2.split(caracter_t)
+    overlay_color = cv2.merge((b, g, r))
 
     # Apply some simple filtering to remove edge noise
-    mask = cv2.medianBlur(a,5)
+    mask = cv2.medianBlur(a, 5)
 
     h, w, _ = overlay_color.shape
-    roi = bg_img[y:y+h, x:x+w]
+    roi = bg_img[y:y + h, x:x + w]
 
     # Black-out the area behind the logo in our original ROI
-    img1_bg = cv2.bitwise_and(roi.copy(),roi.copy(),mask = cv2.bitwise_not(mask))
+    img1_bg = cv2.bitwise_and(roi.copy(), roi.copy(),
+                              mask=cv2.bitwise_not(mask))
 
     # Mask out the logo from the logo image.
-    img2_fg = cv2.bitwise_and(overlay_color,overlay_color,mask = mask)
+    img2_fg = cv2.bitwise_and(overlay_color, overlay_color, mask=mask)
 
     # Update the original image with our new ROI
-    bg_img[y:y+h, x:x+w] = cv2.add(img1_bg, img2_fg)
+    bg_img[y:y + h, x:x + w] = cv2.add(img1_bg, img2_fg)
 
     return bg_img
-
-
-
 
 
 def generate_letter(letter, angle=0):
@@ -128,7 +124,7 @@ def generate_letter(letter, angle=0):
     # Blur and erode the letter so they are thinner
     img = np.array(img)
     img = cv2.GaussianBlur(img, (5, 5), 0)
-    img = cv2.erode(img, kernel, iterations = 1)
+    img = cv2.erode(img, kernel, iterations=1)
     img = Image.fromarray(img)
 
     # Make an emboss effect
@@ -136,7 +132,7 @@ def generate_letter(letter, angle=0):
 
     # Rerotate the image if needed
     if angle > 1:
-        img = img.transpose(6-angle)
+        img = img.transpose(6 - angle)
 
     # Resize the image so the letter is narrow
     img = img.resize((100, 180))
@@ -150,8 +146,8 @@ def generate_letter(letter, angle=0):
             newData.append((255, 255, 255, 0))
         else:
             # Chooses a random value for the alpha channel
-            newData.append((item[0], item[1], item[2], random.randint(80,120)))
-
+            newData.append(
+                (item[0], item[1], item[2], random.randint(80, 120)))
 
     img.putdata(newData)
 
@@ -178,7 +174,7 @@ def generate_letter(letter, angle=0):
     #
     # img = img.astype(int)
 
-    #print(type(img))
+    # print(type(img))
     img.save('.letter.png')
     return img, img.size
 
@@ -192,19 +188,17 @@ def print_text(dispo, im):
     numbers = '0123456789'
     [width, height] = im.size
     ratio_line = [0.42, 0.60, 0.75]
-    coords = []
+    boxes = []
     caracs = []
-
 
     for index, line in enumerate(dispo):
 
         len_line = len(line[0])
 
-
         width_carac = 150
-        start_offset  = int(width/2 - (len_line*width_carac)/2)
+        start_offset = int(width / 2 - (len_line * width_carac) / 2)
 
-        y = int(ratio_line[index]*height)
+        y = int(ratio_line[index] * height)
 
         for index2, carac_type in enumerate(line[0]):
 
@@ -221,30 +215,22 @@ def print_text(dispo, im):
 
             x = start_offset + width_carac * index2
 
-            caracter_t, letters_size  = generate_letter(carac)
+            caracter_t, letters_size = generate_letter(carac)
 
             #im = Image.fromarray(im)
 
+            box = [x, y, x + letters_size[0], y + letters_size[1]]
 
-            coords.append((x,y))
+            boxes.append(box)
             caracs.append(carac)
             im = im.convert("RGB")
             print(im.mode)
 
-            im.paste(caracter_t, (x,y), caracter_t)
+            im.paste(caracter_t, (x, y), caracter_t)
 
             #im = overlay_caracter(im, caracter_t, x, y, overlay_size=None)
 
-
-    return im, coords, caracs, letters_size
-
-
-
-
-
-
-
-
+    return im, boxes, caracs
 
 
 def generate_chip():
@@ -254,35 +240,31 @@ def generate_chip():
     # Different dispositions on the chip for the different lines :  'n' : number
     #                                                               'c' : letter c
     #                                                               'l' : letter
-    dispositions = [['llnnn',],
-                    ['nn/nnnll'],#'nnl/nnncc','nnl/nnncc','lln/nnncc',],
-                    ['lnnnn',]]
+    dispositions = [['llnnn', ],
+                    ['nn/nnnll'],  # 'nnl/nnncc','nnl/nnncc','lln/nnncc',],
+                    ['lnnnn', ]]
 
-    dispositions2 = [['lnll',],
-                    ['nnllnnll'],#'nnl/nnncc','nnl/nnncc','lln/nnncc',],
-                    ['llnn',]]
-    n = random.randint(0,3)
+    dispositions2 = [['lnll', ],
+                     ['nnllnnll'],  # 'nnl/nnncc','nnl/nnncc','lln/nnncc',],
+                     ['llnn', ]]
+    n = random.randint(0, 3)
 
-    #Randomly choose dispo
+    # Randomly choose dispo
     dispo = dispositions
     #dispo[1] = [dispositions[1][n]]
 
-
-    #Randomly choose background
+    # Randomly choose background
     #bg = cv2.imread(BG_PATH + bgs[random.randint(0,6)])
-    bg = Image.open(BG_PATH + bgs[random.randint(0,6)])
+    bg = Image.open(BG_PATH + bgs[random.randint(0, 6)])
+    bg = bg.resize((1580, 1580))
+    chip, boxes, caracs = print_text(dispo, bg)
 
-    chip, coords, caracs, letters_size = print_text(dispo, bg)
-
-    #Add deteriorations
+    # Add deteriorations
     chip_final, _ = add_parallel_light(chip)
 
+    cv2.imwrite('./CHIP.png', chip_final)
 
-    cv2.imwrite('./CHIP.png',chip_final)
-
-
-
-    return chip_final, coords, caracs, letters_size
+    return chip_final, boxes, caracs
 
 
-#generate_chip()
+# generate_chip()
