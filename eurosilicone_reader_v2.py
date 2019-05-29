@@ -35,7 +35,7 @@ import cv2
 
 from step1_chip_detection import chip_detector
 from step2_precise_circle import better_circle
-from step3_angle_correction import orientation_fixer
+from step3_angle_correction import orientation_fixer2
 
 abs_path = os.path.dirname(__file__)
 print('1 =', abs_path)
@@ -51,7 +51,7 @@ def main():
 
     # Start detectors
     CD = chip_detector.ChipDetector()
-    OF = orientation_fixer.OrientationFixer()
+    OF = orientation_fixer2.OrientationFixer()
 
     # Stetting up the useful paths
     input_path = os.path.join(abs_path, "tests/input/")
@@ -103,7 +103,7 @@ def main():
             # STEP 2
             start = time.time()
             # Getting a better detection of the circle with Hough
-            chip_step2 = better_circle.circle_finder(img_chip)
+            chip_step2 = better_circle.circle_finder(chip_step1)
 
             end = time.time()
             print('Step2 inference time = ', end - start)

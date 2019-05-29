@@ -24,8 +24,8 @@ import time
 import logging
 
 import keras
-from step1_chip_detection.retinanet.keras_retinanet import models
-from step1_chip_detection.retinanet.keras_retinanet.utils.image import preprocess_image, resize_image
+from .retinanet.keras_retinanet import models
+from .retinanet.keras_retinanet.utils.image import preprocess_image, resize_image
 
 import numpy as np
 import cv2
@@ -39,7 +39,7 @@ logger.info("Starting Chip Detector module.")
 abs_path = os.path.dirname(__file__)
 
 
-class ChipDetector(object):
+class ChipDetector():
 
     """This class will detect the chip localization depending on our pre-trained model.
     """
