@@ -3,38 +3,47 @@
 
 
 
+import os
+import cv2
 
 from gen_data import generate_chip
 
 
 
 
-def create_chips():
+def create_chips(dest_folder="."):
 
-    nb_chips = 1024
+    nb_chips = 3
+    data = []
 
     for k in range(nb_chips):
 
           chip, coords, caracs, letters_size = generate_chip()
-          write_csv ( coords, letters_size)
+          path_name = os.path.join(dest_folder, "GENERATED_CHIP-{}.jpg".format(k))
+          cv2.imwrite(path_name, chip)
+          data.append({"path": os.path.abspath(path_name), "coords": coords, "caracs": caracs, "carac_size": letters_size})
+          write_csv(data)
 
 
 
 
 
-def write_csv():
+def write_csv(data, file_name = "ann_all.csv"):
 
+    if not os.path.isfile(file_name):
+        with open(file_name, 'w'):
+            pass
 
-    resize_shape = (300, 450)
+    with open(file_name, 'a') as f:
+        for datum in data:
+            for i in range(len(datum['coords'])):
+                coord = "{},{},{},{}".format(
+                    datum['coords'][i][0],
+                    datum['coords'][i][1],
+                    datum['coords'][i][0]+datum['carac_size'][0],
+                    datum['coords'][i][1]+datum['carac_size'][1],
+                )
+                f.write(",".join([datum['path'], coord, datum["caracs"][i]]))
+                f.write("\n")
 
-    with open('ann_all.csv', 'w') as csvfile:
-    spamwriter = csv.writer(csvfile, delimiter=',',
-                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
-
-
-    shape = (x['size']['height'],x['size']['width'])
-    path_to_image = IMAGE_PATH + true_filename
-
-    class_name = x['objects'][0]['classTitle']
-    
-    spamwriter.writerow([path_to_image,x1,y1,x2,y2,class_name])
+create_chips()

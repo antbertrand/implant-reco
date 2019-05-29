@@ -285,4 +285,4 @@ def generate_chip():
     return chip_final, coords, caracs, letters_size
 
 
-generate_chip()
+#generate_chip()
