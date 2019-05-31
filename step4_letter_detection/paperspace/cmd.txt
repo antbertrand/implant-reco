@@ -1,0 +1,3 @@
+./jeanmi jobs create --container ufoym/deepo --machineType GPU+ --command "/paperspace/run-paperspace.sh" --ports 8888:8888
+
+

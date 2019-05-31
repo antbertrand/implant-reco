@@ -1,4 +1,4 @@
 keras_retinanet/bin/train.py --batch-size=1 --random-transform --compute-val-loss --steps=200 --weighted-average csv ../gen_dataset/ann_train.csv ../gen_dataset/class_mapping.csv --val-annotations ../gen_dataset/ann_test.csv
 
 
-keras_retinanet/bin/debug.py --annotations csv ./gen_dataset/ann_train.csv ../gen_dataset/class_mapping.csv
+keras_retinanet/bin/debug.py --annotations csv ../gen_dataset/ann_train.csv ../gen_dataset/class_mapping.csv
