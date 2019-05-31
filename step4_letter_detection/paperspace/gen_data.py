@@ -142,13 +142,14 @@ def generate_letter(letter, angle=0):
     img = img.convert("RGBA")
     datas = img.getdata()
     newData = []
+    alpha_value = random.randint(120, 150)
     for item in datas:
         if item[0] == 128 and item[1] == 128 and item[2] == 128:
             newData.append((255, 255, 255, 0))
         else:
             # Chooses a random value for the alpha channel
             newData.append(
-                (item[0], item[1], item[2], random.randint(120, 150)))
+                (item[0], item[1], item[2], alpha_value))
 
     img.putdata(newData)
 
@@ -185,12 +186,15 @@ def generate_letter(letter, angle=0):
 
 def print_text(dispo, im):
 
-    letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/'
-    numbers = ''
+    letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    numbers = '0123456789'
     [width, height] = im.size
     ratio_line = [0.42, 0.60, 0.75]
     boxes = []
     caracs = []
+    im = im.convert("RGB")
+    im2 = np.array(im)
+
 
     for index, line in enumerate(dispo):
 
@@ -217,17 +221,27 @@ def print_text(dispo, im):
             x = start_offset + width_carac * index2
 
             caracter_t, letters_size = generate_letter(carac)
+            #caracter_t.save('./carac.png')
 
-            #im = Image.fromarray(im)
+            #print(im.mode)
+            im.paste(caracter_t, (x, y), caracter_t)
 
-            box = [x, y, x + letters_size[0], y + letters_size[1]]
+            caracter_t_cv = np.array(caracter_t)
+            #cv2.imwrite('./carac_cv.png', caracter_t_cv)
 
+
+            print(caracter_t_cv.shape)
+            channels = cv2.split(caracter_t_cv)
+            (x0 , y0 ,w ,h) = cv2.boundingRect(channels[3])
+            #x_correc = x + int((letters_size[0] - w)/2) - x0
+            #y_correc = y + int((letters_size[1] - h)/2) - y0
+            a = x + x0 + int(width_carac-letters_size[0])- 10
+            b = y0 + y
+            #box = [x_correc, y_correc, x_correc+w, y_correc+h]
+            box = [ a, b, a+w, b+h]
+            print(box)
             boxes.append(box)
             caracs.append(carac)
-            im = im.convert("RGB")
-            #print(im.mode)
-
-            im.paste(caracter_t, (x, y), caracter_t)
 
             #im = overlay_caracter(im, caracter_t, x, y, overlay_size=None)
 
@@ -245,13 +259,13 @@ def generate_chip():
                     ['nn/nnnll'],  # 'nnl/nnncc','nnl/nnncc','lln/nnncc',],
                     ['lnnnn', ]]
 
-    dispositions2 = [['lllll', ],
-                     ['lll/llll'],  # 'nnl/nnncc','nnl/nnncc','lln/nnncc',],
-                     ['lllll', ]]
+    dispositions2 = [['lnll', ],
+                     ['nnllnnll'],  # 'nnl/nnncc','nnl/nnncc','lln/nnncc',],
+                     ['llnn', ]]
     n = random.randint(0, 3)
 
     # Randomly choose dispo
-    dispo = dispositions2
+    dispo = dispositions
     #dispo[1] = [dispositions[1][n]]
 
     # Randomly choose background
@@ -260,12 +274,19 @@ def generate_chip():
     bg = bg.resize((1580, 1580))
     chip, boxes, caracs = print_text(dispo, bg)
 
-    # Add deteriorations
-    chip_final, _ = add_parallel_light(chip)
+    chip_cv = np.array(chip)
 
+    #To print boxes on image
+    #for box in boxes:
+    #    cv2.rectangle(chip_cv,(box[0],box[1]),(box[2],box[3]),(0,255,0),2)
+
+    # Add deteriorations
+    #chip_final, _ = add_parallel_light(chip)
+    chip_final = chip_cv
+    #print(chip.shape)
     #cv2.imwrite('./CHIP.png', chip_final)
 
     return chip_final, boxes, caracs
 
 
-# generate_chip()
+#generate_chip()

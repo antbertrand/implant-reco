@@ -1,3 +1,4 @@
 ./jeanmi jobs create --container ufoym/deepo --machineType GPU+ --command "/paperspace/run-paperspace.sh" --ports 8888:8888
 
 
+keras_retinanet/bin/convert_model.py /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/step4_letter_detection/models/resnet50_csv_11.h5 /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/step4_letter_detection/models/resnet50_csv_11_inf.h5
