@@ -1,4 +1,12 @@
-keras_retinanet/bin/train.py --batch-size=1 --random-transform --compute-val-loss --steps=200 --weighted-average csv ../gen_dataset/ann_train.csv ../gen_dataset/class_mapping.csv --val-annotations ../gen_dataset/ann_test.csv
+keras_retinanet/bin/train.py --batch-size=1 --lr=1e-4 --random-transform --compute-val-loss --steps=800 --weighted-average --snapshot-path ./snapshots csv /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/step4_ocr/ds_gen/ann_train.csv /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/step4_ocr/ds_gen/class_mapping.csv --val-annotations /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/step4_ocr/ds_gen/ann_test.csv
+
+keras_retinanet/bin/train.py --batch-size=1 --lr=1e-4 --random-transform --compute-val-loss --steps=800 --weighted-average --snapshot-path ./storage/eurosilicone/ds_step4/models/ csv /storage/eurosilicone/ds_step4/split_dataset/ann_train.csv /storage/eurosilicone/ds_step4/split_dataset/class_mapping.csv --val-annotations /storage/eurosilicone/ds_step4/split_dataset/ann_test.csv
+
+keras_retinanet/bin/convert_model.py /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/step4_letter_detection/models/resnet50_csv_03.h5 /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/step4_letter_detection/models/resnet50_csv_03_inf.h5
 
 
 keras_retinanet/bin/debug.py --annotations csv ../gen_dataset/ann_train.csv ../gen_dataset/class_mapping.csv
+
+
+
+keras_retinanet/bin/train.py --batch-size=1 --lr=1e-6 --random-transform --compute-val-loss --steps=280 --weighted-average --snapshot ./snapshots/real_epoch5.h5 --snapshot-path ./snapshots csv /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/step4_ocr/ann_train.csv /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/step4_ocr/class_mapping.csv --val-annotations /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/step4_ocr/ann_val.csv

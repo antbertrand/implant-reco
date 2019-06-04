@@ -50,5 +50,5 @@ paperspace: export DEPLOY_ENV:=develop
 paperspace:
 #	docker-compose -f ./docker-compose.yml -f ./docker-develop.yml build
 	@echo "Starting your paperspace stack."
-	./jeanmi jobs create --container ufoym/deepo --machineType V100 --command "/paperspace/run-paperspace.sh" --ports 8888:8888
+	./jeanmi jobs create --container ufoym/deepo --machineType GPU+ --command "/paperspace/run-paperspace.sh" --ports 8888:8888
 .PHONY:develop

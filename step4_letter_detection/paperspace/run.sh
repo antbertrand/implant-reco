@@ -61,7 +61,7 @@ mkdir /storage/eurosilicone/ds_step4/split_dataset/train
 #cd /paperspace/keras_retinanet
 
 python3 test.py
-python3 dataset_creation.py
+#python3 dataset_creation.py
 #python3 zip.py
 #python3 create_dataset.py
 #keras_retinanet/bin/train.py --batch-size=1 --random-transform --compute-val-loss --steps=200 --weighted-average csv ../gen_dataset/ann_train.csv ../gen_dataset/class_mapping.csv --val-annotations ../gen_dataset/ann_test.csv
