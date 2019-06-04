@@ -36,6 +36,8 @@ import cv2
 from step1_chip_detection import chip_detector
 from step2_precise_circle import better_circle
 from step3_angle_correction import orientation_fixer2
+from step1_chip_detection import chip_detector
+from step4_letter_detection import caracter_detector
 
 abs_path = os.path.dirname(__file__)
 print('1 =', abs_path)
@@ -50,8 +52,9 @@ def main():
     )
 
     # Start detectors
-    CD = chip_detector.ChipDetector()
-    OF = orientation_fixer2.OrientationFixer()
+    ChipD = chip_detector.ChipDetector()
+    OrienF = orientation_fixer2.OrientationFixer()
+    CaracD = caracter_detector.CaracDetector()
 
     # Stetting up the useful paths
     input_path = os.path.join(abs_path, "tests/input/")
@@ -59,6 +62,7 @@ def main():
     chip1_path = os.path.join(abs_path, "tests/chip_step1/")
     chip2_path = os.path.join(abs_path, "tests/chip_step2/")
     chip3_path = os.path.join(abs_path, "tests/chip_step3/")
+    chip4_path = os.path.join(abs_path, "tests/chip_step4/")
 
     # Here instead of being in the loop of the camera taking pictures,
     # we loop on a folder and process every image that is copied into it.
@@ -82,7 +86,7 @@ def main():
             # STEP 1
             start = time.time()
             # Detecting the chip
-            box, score = CD.detect_chip(img_full)
+            box, score = ChipD.detect_chip(img_full)
 
             # Cropping the chip
             if box is None:
@@ -91,7 +95,7 @@ def main():
                 print("The confidence is too low on the classification, the chip \
                         detection will probably be false")
             else:
-                chip_step1 = CD.crop_chip(img_full, box)
+                chip_step1 = ChipD.crop_chip(img_full, box)
 
             end = time.time()
             print('Step1 inference time = ', end - start)
@@ -116,7 +120,7 @@ def main():
             start = time.time()
 
             # Predicting angle
-            predicted_orientation, chip_step3 = OF.classify_angle(chip_step2)
+            predicted_orientation, chip_step3 = OrienF.classify_angle(chip_step2)
 
             end = time.time()
             print('Step3 inference time = ', end - start)
@@ -127,11 +131,10 @@ def main():
             # STEP 4
             start = time.time()
 
-
-
-
-
-
+            # Detecting the caracters
+            chip_step4, lines = CaracD.carac_detection(chip_step3)
+            cv2.imwrite(chip4_path + im_name, chip_step4)
+            print(lines)
 
 
             end = time.time()
