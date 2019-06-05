@@ -27,8 +27,8 @@ import numpy as np
 import cv2
 
 from model_updater import update_model
-from .retinanet.keras_retinanet import models
-from .retinanet.keras_retinanet.utils.image import preprocess_image, resize_image
+from keras_retinanet import models
+from keras_retinanet.utils.image import preprocess_image, resize_image
 
 
 

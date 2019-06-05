@@ -45,6 +45,7 @@ Things needed to run the detection :
 * [Keras](https://www.pyimagesearch.com/2016/11/14/installing-keras-with-tensorflow-backend/)
 * [OpenCV2](https://pypi.org/project/opencv-python/)
 
+Install with pip install ./step1_chip_detection/retinanet/
 
 
 <br /><br />

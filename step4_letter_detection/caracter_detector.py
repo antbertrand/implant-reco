@@ -24,10 +24,10 @@ import keras
 import tensorflow as tf
 
 from model_updater import update_model
-from .retinanet.keras_retinanet import models
-from .retinanet.keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
-from .retinanet.keras_retinanet.utils.visualization import draw_box, draw_caption
-from .retinanet.keras_retinanet.utils.colors import label_color
+from keras_retinanet import models
+from keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
+from keras_retinanet.utils.visualization import draw_box, draw_caption
+from keras_retinanet.utils.colors import label_color
 
 
 
