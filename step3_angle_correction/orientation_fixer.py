@@ -22,9 +22,9 @@ __status__ = "Production"
 import os
 import time
 import logging
-import hashlib
-import base64
-
+import glob
+import re
+from datetime import datetime as dt
 from azure.storage.blob import BlockBlobService
 
 from keras.models import load_model
@@ -39,8 +39,11 @@ import cv2
 logger = logging.getLogger(__name__)
 logger.info("Starting Orientation Fixer module.")
 
+abs_path = os.path.dirname(__file__)
 
 #pylint: disable=C0103
+
+
 def angle_difference(x, y):
     """
     Calculate minimum difference between two angles.
@@ -62,63 +65,67 @@ def angle_error(y_true, y_pred):
 class OrientationFixer():
     """This class will fix image orientation depending on our pre-trained model.
     """
-    MODEL_URL = "https://eurosilicone.blob.core.windows.net/weights/rotnet_chip_resnet50.hdf5"
 
-    @staticmethod
-    def _read_file_md5(fname):
-        """Read md5 from file
-        Taken from: https://stackoverflow.com/questions/3431825/generating-an-md5-checksum-of-a-file
-        """
-        hash_md5 = hashlib.md5()
-        with open(fname, "rb") as fcontent:
-            for chunk in iter(lambda: fcontent.read(4096), b""):
-                hash_md5.update(chunk)
-        return base64.b64encode(hash_md5.digest()).decode("ascii")
+    """This class will detect the chip localization depending on our pre-trained model.
+    """
 
     def __init__(self,
-                 model_path="/var/eurosilicone/models/rotnet_chip_resnet50.hdf5",
+                 model_path=abs_path + "/models/",  # Path where is stored the currently used model
                  container_name="weights",
-                 blob_name="rotnet_chip_resnet50.hdf5",
                  model_connection_string="BlobEndpoint=https://eurosilicone.blob.core.windows.net/;QueueEndpoint=https://eurosilicone.queue.core.windows.net/;FileEndpoint=https://eurosilicone.file.core.windows.net/;TableEndpoint=https://eurosilicone.table.core.windows.net/;SharedAccessSignature=sv=2018-03-28&ss=bfqt&srt=sco&sp=rwdlacup&se=2022-05-16T17:59:47Z&st=2019-05-16T09:59:47Z&spr=https&sig=svg3ojRIIKLE7%2Bje2e5Rz0TRibz5wasE75HmljLL67A%3D",
                  ):
-        """Pre-load model if not already on disk
-        """
-        # Check if file exists / is fresh
-        download_it = True
-        if os.path.isfile(model_path):
-            # File exists? Retreive online md5 from Azure
-            target_blob_service = BlockBlobService(
-                connection_string=model_connection_string
-            )
-            blob = target_blob_service.get_blob_properties(
-                container_name=container_name,
-                blob_name=blob_name,
-            )
-            blob_md5 = blob.properties.content_settings.content_md5
 
-            # Read file md5 & compare
-            file_md5 = self._read_file_md5(model_path)
-            if file_md5 == blob_md5:
-                download_it = False
+        download_it = False
+        # Looking for the existing model
+        model_names = glob.glob('{}rotnet_step3_resnet50_*'.format(model_path))
+
+        if len(model_names) > 1:
+            print(
+                'TODO : Code something to keep only the newest model and remove the others')
+
+        # Reading the date in the model's name
+        else:
+            model_name = os.path.basename(model_names[0])
+            match = re.search(r'\d{4}\d{2}\d{2}\d{2}\d{2}\d{2}', model_name)
+            used_model_date = dt.strptime(match.group(), '%Y%m%d%H%M%S')
+
+
+        # Connection to the container on Azure
+        blob_service = BlockBlobService(connection_string=model_connection_string)
+
+        # List blobs in the container with a certain prefix
+        generator = blob_service.list_blobs(
+            container_name, prefix='rotnet_step3_resnet50_')
+        newest_model_date = used_model_date
+        newest_model_name = model_name
+        # Compare each date in the models in azure with the currently used one
+        for blob in generator:
+            match = re.search(r'\d{4}\d{2}\d{2}\d{2}\d{2}\d{2}', blob.name)
+            blob_model_date = dt.strptime(match.group(), '%Y%m%d%H%M%S')
+
+            # If it's a newer one, we store it to later download it
+            if blob_model_date > newest_model_date:
+                newest_model_date = blob_model_date
+                newest_model_name = blob.name
+                download_it = True
+                logger.info("Model found")
 
         # Download if necessary
         if download_it:
-            # Create target path if necessary
-            os.makedirs(os.path.split(model_path)[0], exist_ok=True)
-
             # Download
             logger.info("Downloading latest model")
-            target_blob_service = BlockBlobService(
-                connection_string=model_connection_string)
+            target_blob_service = BlockBlobService(connection_string=model_connection_string)
             target_blob_service.get_blob_to_path(
                 container_name=container_name,
-                blob_name=blob_name,
-                file_path=model_path,
+                blob_name=newest_model_name,
+                file_path=model_path+newest_model_name,
             )
 
         # Load model
-        self.model = load_model(model_path, custom_objects={
-            'angle_error': angle_error})
+        self.model = load_model(model_path+newest_model_name, custom_objects={
+                                'angle_error': angle_error})
+
+
 
     def classify_angle(self, im):
         """Classify an image (np array or keras array)
@@ -136,12 +143,16 @@ class OrientationFixer():
         im_corr : np array
         The image with the orientation corrected
         """
-        im_b = cv2.resize(im, (224, 224, ))
-        im_b = im / 255
+
+        im_b = cv2.resize(im, (224, 224))
+
+        im_b = cv2.cvtColor(im_b, cv2.COLOR_GRAY2RGB)
+
+        im_b = im_b / 255
         im_b = np.expand_dims(im_b, axis=0)  # correct shape for classification
         predictions = self.model.predict(im_b)
-        predictions = predictions.argmax(
-            axis=1)  # taking index of the maximum %
+        # taking index of the maximum %
+        predictions = predictions.argmax(axis=1)
         angle = predictions[0]
         im_corr = imutils.rotate(im, -1 * angle)
         return angle, im_corr
@@ -149,8 +160,11 @@ class OrientationFixer():
 
 def main():
     """Just a sample test of image rotation"""
+    HEIGHT = 224
+    WIDTH = 224
 
-    #model = load_model('../models/rotnet_chip_resnet50.hdf5',custom_objects={'angle_error': angle_error})
+    model = load_model('../models/rotnet_chip_resnet50.hdf5',
+                       custom_objects={'angle_error': angle_error})
     im_path = '../ds/ds_rotated/test_vrac/'
     im = 'FULL-2019-04-26-140952.png'
 

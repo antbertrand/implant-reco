@@ -22,13 +22,18 @@ __status__ = "Developement"
 import os
 import time
 import logging
+import glob
+import re
+from datetime import datetime as dt
 
-import keras
+from azure.storage.blob import BlockBlobService
+import numpy as np
+import cv2
+
 from .retinanet.keras_retinanet import models
 from .retinanet.keras_retinanet.utils.image import preprocess_image, resize_image
 
-import numpy as np
-import cv2
+
 
 
 
@@ -45,17 +50,59 @@ class ChipDetector():
     """
 
     def __init__(self,
-                 model_path= abs_path +"/models/retinanet_detection_resnet50_inf.h5",):
+                 model_path=abs_path + "/models/",  # Path where is stored the currently used model
+                 container_name="weights",
+                 model_connection_string="BlobEndpoint=https://eurosilicone.blob.core.windows.net/;QueueEndpoint=https://eurosilicone.queue.core.windows.net/;FileEndpoint=https://eurosilicone.file.core.windows.net/;TableEndpoint=https://eurosilicone.table.core.windows.net/;SharedAccessSignature=sv=2018-03-28&ss=bfqt&srt=sco&sp=rwdlacup&se=2022-05-16T17:59:47Z&st=2019-05-16T09:59:47Z&spr=https&sig=svg3ojRIIKLE7%2Bje2e5Rz0TRibz5wasE75HmljLL67A%3D",
+                 ):
 
-        # Check if file exists
-        if os.path.isfile(model_path):
-            logger.info("Model found")
+        download_it = False
+        # Looking for the existing model
+        model_names = glob.glob('{}retinanet_step1_resnet50_*'.format(model_path))
+
+
+        if len(model_names) > 1:
+            print(
+                'TODO : Code something to keep only the newest model and remove the others')
+
+        # Reading the date in the model's name
         else:
-            logger.info(
-                "No model found. Please add the inference model in the models folder")
+            model_name = os.path.basename(model_names[0])
+            match = re.search(r'\d{4}\d{2}\d{2}\d{2}\d{2}\d{2}', model_name)
+            used_model_date = dt.strptime(match.group(), '%Y%m%d%H%M%S')
 
-        # Load model
-        self.model = models.load_model(model_path, backbone_name='resnet50')
+
+        # Connection to the container on Azure
+        blob_service = BlockBlobService(connection_string=model_connection_string)
+
+        # List blobs in the container with a certain prefix
+        generator = blob_service.list_blobs(
+            container_name, prefix='retinanet_step1_resnet50_')
+        newest_model_date = used_model_date
+        newest_model_name = model_name
+        # Compare each date in the models in azure with the currently used one
+        for blob in generator:
+            match = re.search(r'\d{4}\d{2}\d{2}\d{2}\d{2}\d{2}', blob.name)
+            blob_model_date = dt.strptime(match.group(), '%Y%m%d%H%M%S')
+
+            # If it's a newer one, we store it to later download it
+            if blob_model_date > newest_model_date:
+                newest_model_date = blob_model_date
+                newest_model_name = blob.name
+                download_it = True
+                logger.info("Model found")
+
+        # Download if necessary
+        if download_it:
+            # Download
+            logger.info("Downloading latest model")
+            target_blob_service = BlockBlobService(connection_string=model_connection_string)
+            target_blob_service.get_blob_to_path(
+                container_name=container_name,
+                blob_name=newest_model_name,
+                file_path=model_path+newest_model_name,
+            )
+
+        self.model = models.load_model(model_path+newest_model_name, backbone_name='resnet50')
         self.labels_to_names = {0: 'pastille'}
 
     def detect_chip(self, im):

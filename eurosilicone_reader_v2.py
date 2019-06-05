@@ -31,7 +31,7 @@ import cv2
 
 from step1_chip_detection import chip_detector
 from step2_precise_circle import better_circle
-from step3_angle_correction import orientation_fixer2
+from step3_angle_correction import orientation_fixer
 from step4_letter_detection import caracter_detector
 
 abs_path = os.path.dirname(__file__)
@@ -47,7 +47,7 @@ def main():
 
     # Start detectors
     ChipD = chip_detector.ChipDetector()
-    OrienF = orientation_fixer2.OrientationFixer()
+    OrienF = orientation_fixer.OrientationFixer()
     CaracD = caracter_detector.CaracDetector()
 
     # Stetting up the useful paths

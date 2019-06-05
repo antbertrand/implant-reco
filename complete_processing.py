@@ -19,7 +19,7 @@ import cv2
 
 from step1_chip_detection import chip_detector
 from step2_precise_circle import better_circle
-from step3_angle_correction import orientation_fixer2
+from step3_angle_correction import orientation_fixer
 from step4_letter_detection import caracter_detector
 
 abs_path = os.path.dirname(__file__)
@@ -36,7 +36,7 @@ class CompleteProcessor():
 
         # Start detectors
         self.ChipD = chip_detector.ChipDetector()
-        self.OrienF = orientation_fixer2.OrientationFixer()
+        self.OrienF = orientation_fixer.OrientationFixer()
         self.CaracD = caracter_detector.CaracDetector()
 
         # Setting up some useful paths to save images
