@@ -3,21 +3,17 @@
 """
 eurosilicone-reader.py
 
-Created by Pierre-Julien Grizel et al.
-Copyright (c) 2016 NumeriCube. All rights reserved.
 
-The main EUROSILICONE program but without a GUI.
+The main EUROSILICONE program but taking the input images from a folder,
+not the camera.
 
 Main features:
-* Opens and constantly reads camera
-* If something is detected, print a line on the screen
-* Writes the image in a quiet place
-* Loop forever
+* Loop forever on a folder and will process every image that is put into it.
 
 """
 from __future__ import unicode_literals
 
-__author__ = ""
+__author__ = "Antoine Bertrand"
 __copyright__ = "Copyright 2016, NumeriCube"
 __credits__ = ["Pierre-Julien Grizel"]
 __license__ = "CLOSED SOURCE"
@@ -36,11 +32,9 @@ import cv2
 from step1_chip_detection import chip_detector
 from step2_precise_circle import better_circle
 from step3_angle_correction import orientation_fixer2
-from step1_chip_detection import chip_detector
 from step4_letter_detection import caracter_detector
 
 abs_path = os.path.dirname(__file__)
-print('1 =', abs_path)
 
 
 def main():
@@ -134,30 +128,16 @@ def main():
             # Detecting the caracters
             chip_step4, lines = CaracD.carac_detection(chip_step3)
             cv2.imwrite(chip4_path + im_name, chip_step4)
-            print(lines)
-
+            text = ''
+            for line in lines:
+                text += line + '\t'
 
             end = time.time()
             print('Step4 inference time = ', end - start)
 
+            print(text)
 
 
-            """
-            # Get additional info
-            best_angle = self.get_chip_angle(img_chip)
-            if best_angle is not None:
-                self.get_text_from_azure(img_chip, best_angle)
-
-            # computeResults.saveImage(img_chip)
-            print(
-                "Image saved. Change/Turn prothesis. Waiting 5s before detecting again."
-            )
-            time.sleep(5)
-            logging.info("Circle detected")
-
-            # self.ui.displayImage(img)
-            print("START READING...")
-            """
 
 
 if __name__ == '__main__':

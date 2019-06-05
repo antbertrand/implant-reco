@@ -3,8 +3,6 @@
 """
 complete_processing.py
 
-Created by Pierre-Julien Grizel et al.
-Copyright (c) 2016 NumeriCube. All rights reserved.
 
 The program gathering the different steps of processing.
 
@@ -122,7 +120,7 @@ class CompleteProcessor():
         # Converting lines ( list of str) to text ( str, with lines separated with /t)
         text = ''
         for line in lines:
-            text += line + '/t'
+            text += line + '\t'
         # Saving chip4 somewhere
         #cv2.imwrite(chip4_path + im_name, chip_step4)
 

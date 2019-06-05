@@ -103,9 +103,8 @@ class ChipDetector():
 
 
         for box, score, label in zip(boxes[0], scores[0], labels[0]):
-            print(box, score, label)
 
-            print("The confidence on the classification is of {}%".format(score * 100))
+            #print("The confidence on the classification is of {}%".format(score * 100))
             return box, score
 
     def crop_chip(self, im, box):

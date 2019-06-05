@@ -118,7 +118,7 @@ class OrientationFixer():
 
         # Load model
         self.model = load_model(model_path, custom_objects={
-                                'angle_error': angle_error})
+            'angle_error': angle_error})
 
     def classify_angle(self, im):
         """Classify an image (np array or keras array)

@@ -70,7 +70,7 @@ class OrientationFixer():
     """
 
     def __init__(self,
-                 model_path=abs_path + "/models/rotnet_chip_resnet50_v4.hdf5",):
+                 model_path=abs_path + "/models/rotnet_step3_resnet50_20190605101500.hdf5",):
 
         # Check if file exists
         if os.path.isfile(model_path):
@@ -159,13 +159,10 @@ class OrientationFixer():
 
         im_b = cv2.resize(im, (224, 224))
 
-        print('SHAPE1= ', im_b.shape)
         im_b = cv2.cvtColor(im_b, cv2.COLOR_GRAY2RGB)
-        print('SHAPE2= ', im_b.shape)
 
         im_b = im_b / 255
         im_b = np.expand_dims(im_b, axis = 0 ) # correct shape for classification
-        print('SHAPE3= ', im_b.shape)
         predictions = self.model.predict(im_b)
         # taking index of the maximum %
         predictions = predictions.argmax(axis=1)

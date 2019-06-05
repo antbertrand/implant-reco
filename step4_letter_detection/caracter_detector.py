@@ -63,7 +63,7 @@ class CaracDetector():
     """
 
     def __init__(self,
-                 model_path=abs_path + "/models/RetinNaNet_ocr_resnet50_201906041652.h5",):
+                 model_path=abs_path + "/models/retinanet_step4_resnet50_inf_20190605101500.h5",):
 
         # Check if file exists
         if os.path.isfile(model_path):

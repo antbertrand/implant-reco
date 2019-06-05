@@ -31,11 +31,11 @@ def circle_finder(img):
     # specifically chosen for a certain type.
     size = img.shape
     if size[0] > 1400 or size[1] > 1400:
-        print('big chip')
+        #print('big chip')
         circles = cv2.HoughCircles(img2, cv2.HOUGH_GRADIENT, 10, 10000,
                                    param1=100, param2=100, minRadius=700, maxRadius=1000) #840
     else:
-        print('other sizes of chips')
+        #print('other sizes of chips')
         circles = cv2.HoughCircles(img2, cv2.HOUGH_GRADIENT, 5, 10000,
                                    param1=100, param2=100, minRadius=100, maxRadius=600)
 
