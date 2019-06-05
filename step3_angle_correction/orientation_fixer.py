@@ -29,11 +29,12 @@ from azure.storage.blob import BlockBlobService
 
 from keras.models import load_model
 import keras.backend as K
-# from keras.preprocessing import image
 import numpy as np
 import imutils
 import cv2
-# import matplotlib.pyplot as plt
+
+
+from model_updater import update_model
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -66,66 +67,14 @@ class OrientationFixer():
     """This class will fix image orientation depending on our pre-trained model.
     """
 
-    """This class will detect the chip localization depending on our pre-trained model.
-    """
-
     def __init__(self,
-                 model_path=abs_path + "/models/",  # Path where is stored the currently used model
-                 container_name="weights",
-                 model_connection_string="BlobEndpoint=https://eurosilicone.blob.core.windows.net/;QueueEndpoint=https://eurosilicone.queue.core.windows.net/;FileEndpoint=https://eurosilicone.file.core.windows.net/;TableEndpoint=https://eurosilicone.table.core.windows.net/;SharedAccessSignature=sv=2018-03-28&ss=bfqt&srt=sco&sp=rwdlacup&se=2022-05-16T17:59:47Z&st=2019-05-16T09:59:47Z&spr=https&sig=svg3ojRIIKLE7%2Bje2e5Rz0TRibz5wasE75HmljLL67A%3D",
-                 ):
+                 model_prefix='rotnet_step3_resnet50_'):
 
-        download_it = False
-        # Looking for the existing model
-        model_names = glob.glob('{}rotnet_step3_resnet50_*'.format(model_path))
-
-        if len(model_names) > 1:
-            print(
-                'TODO : Code something to keep only the newest model and remove the others')
-
-        # Reading the date in the model's name
-        else:
-            model_name = os.path.basename(model_names[0])
-            match = re.search(r'\d{4}\d{2}\d{2}\d{2}\d{2}\d{2}', model_name)
-            used_model_date = dt.strptime(match.group(), '%Y%m%d%H%M%S')
-
-
-        # Connection to the container on Azure
-        blob_service = BlockBlobService(connection_string=model_connection_string)
-
-        # List blobs in the container with a certain prefix
-        generator = blob_service.list_blobs(
-            container_name, prefix='rotnet_step3_resnet50_')
-        newest_model_date = used_model_date
-        newest_model_name = model_name
-        # Compare each date in the models in azure with the currently used one
-        for blob in generator:
-            match = re.search(r'\d{4}\d{2}\d{2}\d{2}\d{2}\d{2}', blob.name)
-            blob_model_date = dt.strptime(match.group(), '%Y%m%d%H%M%S')
-
-            # If it's a newer one, we store it to later download it
-            if blob_model_date > newest_model_date:
-                newest_model_date = blob_model_date
-                newest_model_name = blob.name
-                download_it = True
-                logger.info("Model found")
-
-        # Download if necessary
-        if download_it:
-            # Download
-            logger.info("Downloading latest model")
-            target_blob_service = BlockBlobService(connection_string=model_connection_string)
-            target_blob_service.get_blob_to_path(
-                container_name=container_name,
-                blob_name=newest_model_name,
-                file_path=model_path+newest_model_name,
-            )
+        # Checking if the used model is the best
+        model_path = update_model(abs_path, model_prefix)
 
         # Load model
-        self.model = load_model(model_path+newest_model_name, custom_objects={
-                                'angle_error': angle_error})
-
-
+        self.model = load_model(model_path, custom_objects={'angle_error': angle_error})
 
     def classify_angle(self, im):
         """Classify an image (np array or keras array)

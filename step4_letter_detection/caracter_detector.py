@@ -14,28 +14,20 @@ from __future__ import unicode_literals
 import os
 import time
 import logging
-import glob
-import re
-from datetime import datetime as dt
-from azure.storage.blob import BlockBlobService
 
-# import miscellaneous modules
 import cv2
 import numpy as np
 
-# import keras
 import keras
 
 # set tf backend to allow memory to grow, instead of claiming everything
 import tensorflow as tf
 
-# import keras_retinanet
+from model_updater import update_model
 from .retinanet.keras_retinanet import models
 from .retinanet.keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
 from .retinanet.keras_retinanet.utils.visualization import draw_box, draw_caption
 from .retinanet.keras_retinanet.utils.colors import label_color
-
-
 
 
 
@@ -57,63 +49,17 @@ abs_path = os.path.dirname(__file__)
 
 class CaracDetector():
 
-    """This class will detect the chip localization depending on our pre-trained model.
+    """This class will detect the caracters on a chip.
     """
 
     def __init__(self,
-                 model_path=abs_path + "/models/",  # Path where is stored the currently used model
-                 container_name="weights",
-                 model_connection_string="BlobEndpoint=https://eurosilicone.blob.core.windows.net/;QueueEndpoint=https://eurosilicone.queue.core.windows.net/;FileEndpoint=https://eurosilicone.file.core.windows.net/;TableEndpoint=https://eurosilicone.table.core.windows.net/;SharedAccessSignature=sv=2018-03-28&ss=bfqt&srt=sco&sp=rwdlacup&se=2022-05-16T17:59:47Z&st=2019-05-16T09:59:47Z&spr=https&sig=svg3ojRIIKLE7%2Bje2e5Rz0TRibz5wasE75HmljLL67A%3D",
-                 ):
+                 model_prefix='retinanet_step4_resnet50_inf'):
 
-        download_it = False
-        # Looking for the existing model
-        model_names = glob.glob('{}retinanet_step4_resnet50_*'.format(model_path))
-
-        if len(model_names) > 1:
-            print(
-                'TODO : Code something to keep only the newest model and remove the others')
-
-        # Reading the date in the model's name
-        else:
-            model_name = os.path.basename(model_names[0])
-            match = re.search(r'\d{4}\d{2}\d{2}\d{2}\d{2}\d{2}', model_name)
-            used_model_date = dt.strptime(match.group(), '%Y%m%d%H%M%S')
-
-
-        # Connection to the container on Azure
-        blob_service = BlockBlobService(connection_string=model_connection_string)
-
-        # List blobs in the container with a certain prefix
-        generator = blob_service.list_blobs(
-            container_name, prefix='retinanet_step4_resnet50_')
-        newest_model_date = used_model_date
-        newest_model_name = model_name
-        # Compare each date in the models in azure with the currently used one
-        for blob in generator:
-            match = re.search(r'\d{4}\d{2}\d{2}\d{2}\d{2}\d{2}', blob.name)
-            blob_model_date = dt.strptime(match.group(), '%Y%m%d%H%M%S')
-
-            # If it's a newer one, we store it to later download it
-            if blob_model_date > newest_model_date:
-                newest_model_date = blob_model_date
-                newest_model_name = blob.name
-                download_it = True
-                logger.info("Model found")
-
-        # Download if necessary
-        if download_it:
-            # Download
-            logger.info("Downloading latest model")
-            target_blob_service = BlockBlobService(connection_string=model_connection_string)
-            target_blob_service.get_blob_to_path(
-                container_name=container_name,
-                blob_name=newest_model_name,
-                file_path=model_path+newest_model_name,
-            )
+        # Checking if the used model is the best
+        model_path = update_model(abs_path, model_prefix)
 
         # Load model
-        self.model = models.load_model(model_path+newest_model_name, backbone_name='resnet50')
+        self.model = models.load_model(model_path, backbone_name='resnet50')
         self.labels_to_names = {0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5',
                                 6: '6', 7: '7', 8: '8', 9: '9', 10: '/', 11: 'A', 12: 'B', 13: 'C',
                                 14: 'D', 15: 'E', 16: 'F', 17: 'G', 18: 'H', 19: 'I', 20: 'J', 21: 'K',
@@ -121,7 +67,7 @@ class CaracDetector():
                                 29:'S', 30: 'T', 31: 'U', 32: 'V', 33: 'W', 34: 'X', 35: 'Y', 36: 'Z'}
 
 
-    def draw_caption(image, box, caption):
+    def draw_caption(self, image, box, caption):
         """ Draws a caption above the box in an image.
 
         # Arguments
@@ -153,7 +99,6 @@ class CaracDetector():
         Label number. Convert it to the label name with labels_to_names
         """
 
-        size_im = im.shape
 
         # Resizing the image
         WIDTH = 800
@@ -176,14 +121,14 @@ class CaracDetector():
         current_grp = 0
 
         # Stores the anchor value for each line
-        #anchor = [anchor_line1, anchor_line1, anchor_line1]
+        # anchor = [anchor_line1, anchor_line1, anchor_line1]
         anchor = [0, 0, 0]
 
         # Sorting the boxes by the y value of the top left coordinate
         infos = zip(boxes[0], scores[0], labels[0])
         infos_sorted = sorted(infos, key=lambda x: x[0][1])
 
-        #infos_lines = [infos_line1, infos_line2, infos_line3]
+        # infos_lines = [infos_line1, infos_line2, infos_line3]
         infos_lines = [[], [], []]
 
         # Passing through all the boxes
