@@ -296,8 +296,10 @@ class EurosiliconeReader(object):
             # STEP 3: we rotate the chip (predict chip angle)
             predicted_orientation, rotated_chip = OrienF.classify_angle(chip)
 
-            # Detect characters and send to the keyboard interface
+            # Detect characters and send to the keyboard interface. Save image on the fly
             outlined_text, lines = CaracD.carac_detection(rotated_chip)
+            output_fn = output_fn.replace("FULL", "TEXT")
+            Image.fromarray(outlined_text).save(output_fn)
             text = "\t".join(lines)
             print("    NUMERO DE SERIE: {}".format(" ".join(lines)))
             kbd.send(text)
