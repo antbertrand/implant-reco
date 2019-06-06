@@ -234,6 +234,9 @@ class EurosiliconeReader(object):
         # Connect to keyboard
         kbd = keyboard.Keyboard()
 
+        # Keep track of the previous barcode
+        previous_text = None
+
         # Until death stikes, we read images continuously.
         while True:
             # Grab image from camera
@@ -315,7 +318,13 @@ class EurosiliconeReader(object):
             print("      [TIME] Temps détection pastille : %.4f" % (end_chip - start_chip))
             print("      [TIME] Temps rotation :           %.4f" % (end_orientation - start_orientation))
             print("      [TIME] Temps OCR :                %.4f" % (end_ocr - start_ocr))
-            kbd.send(text)
+
+            # Send text to keyboard *if and only if* it's different from the previous one
+            if text == previous_text:
+                print("    [SAME AS PREVIOUS CODE, WE DON'T SEND IT]")
+            else:
+                kbd.send(text)
+            previous_text = text
             time.sleep(1)
 
 
