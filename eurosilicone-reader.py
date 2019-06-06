@@ -225,8 +225,8 @@ class EurosiliconeReader(object):
 
         # Start detectors
         self.past_detection = yolo.YOLO()
-        self.text_detection = yolo_text.YOLO()
-        self.char_detection = yolo_char.YOLO()
+        #self.text_detection = yolo_text.YOLO()
+        #self.char_detection = yolo_char.YOLO()
         ChipD = chip_detector.ChipDetector()
         OrienF = orientation_fixer.OrientationFixer()
         CaracD = caracter_detector.CaracDetector()
@@ -302,7 +302,7 @@ class EurosiliconeReader(object):
             Image.fromarray(outlined_text).save(output_fn)
             text = "\t".join(lines)
             print("    NUMERO DE SERIE: {}".format(" ".join(lines)))
-            kbd.send(text)
+            #kbd.send(text)
             time.sleep(1)
 
 
