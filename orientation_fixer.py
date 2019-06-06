@@ -71,7 +71,6 @@ class OrientationFixer(object):
 
     def __init__(self,
                  model_path=abs_path + "/models/rotnet_chip_resnet50_v4.hdf5",):
-                 print('COUCOUC', model_path)
         # Check if file exists
         if os.path.isfile(model_path):
             logger.info("Model found")
