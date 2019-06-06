@@ -29,6 +29,10 @@ __status__ = "Production"
 import time
 import os
 import logging
+import shutil
+import time
+
+import cv2
 
 import numpy as np
 import camera
@@ -46,6 +50,17 @@ import yolo
 import yolo_text
 import yolo_char
 import orientation_fixer
+
+from utils import detect_text, get_circles, microsoft_detection_text
+from PIL import Image, ImageTk
+from threading import Thread
+
+from step1_chip_detection import chip_detector
+from step2_precise_circle import better_circle
+from step3_angle_correction import orientation_fixer
+from step4_letter_detection import caracter_detector
+import yolo_text
+import keyboard
 
 # from keyboard import Keyboard
 
@@ -212,11 +227,17 @@ class EurosiliconeReader(object):
         self.past_detection = yolo.YOLO()
         self.text_detection = yolo_text.YOLO()
         self.char_detection = yolo_char.YOLO()
+        ChipD = chip_detector.ChipDetector()
+        OrienF = orientation_fixer.OrientationFixer()
+        CaracD = caracter_detector.CaracDetector()
+
+        # Connect to keyboard
+        kbd = keyboard.Keyboard()
 
         # Until death stikes, we read images continuously.
-        print("START READING...")
         while True:
             # Grab image from camera
+            print("PRESENTER PRODUIT...")
             fullimg, img = self.cam.grabbingImage()
 
             # Convert to PIL format
@@ -232,7 +253,7 @@ class EurosiliconeReader(object):
             if not is_detected:
                 continue
 
-            print("DON'T MOVE!")
+            print("    NE BOUGEZ PLUS !")
             time.sleep(1)
             fullimg, img = self.cam.grabbingImage()
             is_detected, out_boxes, out_scores, out_classes = self.past_detection.detect_image(
@@ -240,10 +261,11 @@ class EurosiliconeReader(object):
             )
 
             if not is_detected:
-                print("You moved...")
+                # print("You moved...")
                 continue
 
             # Get detected zone
+            print("    Vous pouvez retirer le produit.")
             self.detect = detection_instance.DetectionInstance(fullimg)
             is_cropped, img_chip = self.detect.get_chip_area(out_boxes)
 
@@ -255,23 +277,31 @@ class EurosiliconeReader(object):
             Image.fromarray(img_chip).save(output_fn)
             output_fn = output_fn.replace("CHIP", "FULL")
             Image.fromarray(fullimg).save(output_fn)
-            print("Image saved: {}".format(output_fn))
+            # print("Image saved: {}".format(output_fn))
             # img_chip.save(output_fn)
 
-            # Get additional info
-            best_angle = self.get_chip_angle(img_chip)
-            if best_angle is not None:
-                self.get_text_from_azure(img_chip, best_angle)
+            # Perform the full detection cycle.
+            # Start by cropping the chip (in 2 steps)
+            # THIS part can be vastly optimized especially considering what's done above.
+            box, score = ChipD.detect_chip(fullimg)
+            if box is None:
+                print("    Pas de pastille détectée. Tournez la prothèse de 90 degrés.")
+                continue
+            elif score < 0.1:
+                print("    Pastille pas suffisamment nette. Tournez la prothèse de 90 degrés.")
+                continue
+            chip_step1 = ChipD.crop_chip(fullimg, box)
+            chip = better_circle.circle_finder(chip_step1)
 
-            # computeResults.saveImage(img_chip)
-            print(
-                "Image saved. Change/Turn prothesis. Waiting 5s before detecting again."
-            )
-            time.sleep(5)
-            logging.info("Circle detected")
+            # STEP 3: we rotate the chip (predict chip angle)
+            predicted_orientation, rotated_chip = OrienF.classify_angle(chip)
 
-            # self.ui.displayImage(img)
-            print("START READING...")
+            # Detect characters and send to the keyboard interface
+            outlined_text, lines = CaracD.carac_detection(rotated_chip)
+            text = "\t".join(lines)
+            print("    NUMERO DE SERIE: {}".format(" ".join(lines)))
+            kbd.send(text)
+            time.sleep(1)
 
 
 if __name__ == "__main__":

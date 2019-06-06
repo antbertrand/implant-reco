@@ -20,7 +20,7 @@ class Keyboard(Thread):
                 time.sleep(1)
             else:
                 print("Serial link turning off.")
-    
+
     def openAndListen(self):
         if not self.isAvailable():
             print("Device not connected")
@@ -58,16 +58,16 @@ class Keyboard(Thread):
 
     def send(self, data):
         if not self.isAvailable():
-            print("Trying to send to disconnected device.")
+            print("    [KEYBOARD] Trying to send to disconnected device.")
             self.ser = None
             while self.ser == None:
-                print("Reconnecting...")
+                print("    [KEYBOARD] Reconnecting...")
                 try:
                     self.connect()
                 except:
-                    print("Failed to reconnect for now")
+                    print("    [KEYBOARD] Failed to reconnect for now")
                 time.sleep(1)
-            print("Reconnected.")
+            print("    [KEYBOARD] Reconnected.")
             time.sleep(3)
         #print (data)
         self.ser.write(str.encode(data))
