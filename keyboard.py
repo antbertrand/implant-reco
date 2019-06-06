@@ -11,6 +11,7 @@ class Keyboard(Thread):
         Thread.__init__(self)
         self.ser = None
         self.is_running = True
+        self.openAndListen()
 
     def run(self):
         while self.is_running:
