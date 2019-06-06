@@ -238,6 +238,7 @@ class EurosiliconeReader(object):
         while True:
             # Grab image from camera
             print("PRESENTER PRODUIT...")
+            start_cycle = time.time()
             fullimg, img = self.cam.grabbingImage()
 
             # Convert to PIL format
@@ -255,6 +256,7 @@ class EurosiliconeReader(object):
 
             print("    NE BOUGEZ PLUS !")
             time.sleep(1)
+            start_subcycle = time.time()
             fullimg, img = self.cam.grabbingImage()
             is_detected, out_boxes, out_scores, out_classes = self.past_detection.detect_image(
                 img_pil
@@ -266,15 +268,16 @@ class EurosiliconeReader(object):
 
             # Get detected zone
             print("    Vous pouvez retirer le produit.")
-            self.detect = detection_instance.DetectionInstance(fullimg)
-            is_cropped, img_chip = self.detect.get_chip_area(out_boxes)
+            end_capture = time.time()
+            # self.detect = detection_instance.DetectionInstance(fullimg)
+            # is_cropped, img_chip = self.detect.get_chip_area(out_boxes)
 
             # Save chip image
             output_fn = os.path.join(
                 ACQUISITIONS_PATH,
                 "CHIP-{}.png".format(time.strftime("%Y-%m-%d-%H%M%S")),
             )
-            Image.fromarray(img_chip).save(output_fn)
+            # Image.fromarray(img_chip).save(output_fn)
             output_fn = output_fn.replace("CHIP", "FULL")
             Image.fromarray(fullimg).save(output_fn)
             # print("Image saved: {}".format(output_fn))
@@ -283,6 +286,7 @@ class EurosiliconeReader(object):
             # Perform the full detection cycle.
             # Start by cropping the chip (in 2 steps)
             # THIS part can be vastly optimized especially considering what's done above.
+            start_chip = time.time()
             box, score = ChipD.detect_chip(fullimg)
             if box is None:
                 print("    Pas de pastille détectée. Tournez la prothèse de 90 degrés.")
@@ -292,17 +296,26 @@ class EurosiliconeReader(object):
                 continue
             chip_step1 = ChipD.crop_chip(fullimg, box)
             chip = better_circle.circle_finder(chip_step1)
+            end_chip = time.time()
 
             # STEP 3: we rotate the chip (predict chip angle)
+            start_orientation = time.time()
             predicted_orientation, rotated_chip = OrienF.classify_angle(chip)
+            end_orientation = time.time()
 
             # Detect characters and send to the keyboard interface. Save image on the fly
+            start_ocr = time.time()
             outlined_text, lines = CaracD.carac_detection(rotated_chip)
+            end_ocr = time.time()
             output_fn = output_fn.replace("FULL", "TEXT")
             Image.fromarray(outlined_text).save(output_fn)
             text = "\t".join(lines)
             print("    NUMERO DE SERIE: {}".format(" ".join(lines)))
             kbd.send(text)
+            print("      [TIME] Temps prise de vue :       %f" % end_capture - start_subcycle)
+            print("      [TIME] Temps détection pastille : %f" % end_chip - start_chip)
+            print("      [TIME] Temps rotation :           %f" % end_orientation - start_orientation)
+            print("      [TIME] Temps OCR :                %f" % end_ocr - start_ocr)
             time.sleep(1)
 
 
