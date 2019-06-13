@@ -15,7 +15,7 @@ from __future__ import unicode_literals
 
 import os
 import time
-import cv2
+
 
 from step1_chip_detection import chip_detector
 from step2_precise_circle import better_circle
