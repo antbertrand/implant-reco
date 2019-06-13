@@ -11,7 +11,7 @@ import random
 import cv2
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 
-from deterioration import add_parallel_light
+from deterioration import add_parallel_light, noisy
 
 
 BG_PATH = './backgrounds/'
@@ -281,9 +281,10 @@ def generate_chip():
         cv2.rectangle(chip_cv,(box[0],box[1]),(box[2],box[3]),(0,255,0),2)
 
     # Add deteriorations
-    #chip_final, _ = add_parallel_light(chip)
-    chip_final = chip_cv
-    #print(chip.shape)
+    chip_final, _ = add_parallel_light(chip)
+    chip_final = noisy('gauss', chip_final)
+    chip_final = noisy('s&p', chip_final)
+
     cv2.imwrite('./CHIP.png', chip_final)
 
     return chip_final, boxes, caracs

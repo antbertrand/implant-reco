@@ -50,7 +50,7 @@ def update_model(abs_path,
 
     # Looking for the existing model
     model_names = glob.glob('{}{}*'.format(model_path, model_type))
-
+    print(model_names, len(model_names))
     if len(model_names) > 1:
         print(
             'TODO : Code something to keep only the newest model and remove the others')
