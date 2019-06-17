@@ -21,8 +21,8 @@ def create_chips(dest_folder=".", n=4000, side_length=800):
 
         # Resize the chip and adapt the coordinates
         scale = chip.shape[0] / side_length
-        chip = cv2.cvtColor(chip, cv2.COLOR_RGB2GRAY)
-        chip = cv2.equalizeHist(chip)
+        #chip = cv2.cvtColor(chip, cv2.COLOR_RGB2GRAY)
+        #chip = cv2.equalizeHist(chip)
         chip = cv2.resize(chip, (side_length, side_length))
 
         boxes = np.array(boxes)
@@ -33,11 +33,11 @@ def create_chips(dest_folder=".", n=4000, side_length=800):
         # Save the image
         if k<n*0.9:
             path_name = os.path.join(dest_folder, "train", "GENERATED_CHIP-{}.jpg".format(k))
-            file_name = "/storage/eurosilicone/ds_step4/gen_dataset_big/ann_train.csv"
+            file_name = "/storage/eurosilicone/ds_step4/gen_dataset/ann_train.csv"
 
         else:
             path_name = os.path.join(dest_folder, "val", "GENERATED_CHIP-{}.jpg".format(k))
-            file_name = "/storage/eurosilicone/ds_step4/gen_dataset_big/ann_val.csv"
+            file_name = "/storage/eurosilicone/ds_step4/gen_dataset/ann_val.csv"
 
         cv2.imwrite(path_name, chip)
         # Set all the data we need for annotation
@@ -73,8 +73,8 @@ def write_csv(data, file_name = "ann_all.csv"):
                 f.write(",".join([datum['path'], coord, datum["caracs"][i]]))
                 f.write("\n")
 
-with open("/storage/eurosilicone/ds_step4/gen_dataset_big/ann_train.csv", 'w'):
+with open("/storage/eurosilicone/ds_step4/gen_dataset/ann_train.csv", 'w'):
     pass
-with open("/storage/eurosilicone/ds_step4/gen_dataset_big/ann_val.csv", 'w'):
+with open("/storage/eurosilicone/ds_step4/gen_dataset/ann_val.csv", 'w'):
     pass
-create_chips(dest_folder='/storage/eurosilicone/ds_step4/gen_dataset_big/')
+create_chips(dest_folder='/storage/eurosilicone/ds_step4/gen_dataset/')

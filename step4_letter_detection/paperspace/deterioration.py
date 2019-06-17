@@ -1,10 +1,8 @@
 import cv2
+import os
 import numpy as np
 import random
 from scipy.stats import norm
-
-
-
 
 
 def _decayed_value_in_norm(x, max_value, min_value, center, range):
@@ -17,6 +15,7 @@ def _decayed_value_in_norm(x, max_value, min_value, center, range):
     x_value = (x_prob / center_prob) * (max_value - min_value) + min_value
     return x_value
 
+
 def _decayed_value_in_linear(x, max_value, padding_center, decay_rate):
     """
     decay from max value to min value with static linear decay rate.
@@ -27,13 +26,11 @@ def _decayed_value_in_linear(x, max_value, padding_center, decay_rate):
     return x_value
 
 
-
-
 def generate_parallel_light_mask(mask_size,
                                  position=None,
                                  direction=None,
                                  max_brightness=255,
-                                 min_brightness=0,
+                                 min_brightness=50,
                                  mode="gaussian",
                                  linear_decay_rate=None):
     """
@@ -63,7 +60,8 @@ def generate_parallel_light_mask(mask_size,
         if mode == "linear_static":
             linear_decay_rate = random.uniform(0.2, 2)
         if mode == "linear_dynamic":
-            linear_decay_rate = (max_brightness - min_brightness) / max(mask_size)
+            linear_decay_rate = (
+                max_brightness - min_brightness) / max(mask_size)
     assert mode in ["linear_dynamic", "linear_static", "gaussian"], \
         "mode must be linear_dynamic, linear_static or gaussian"
     padding = int(max(mask_size) * np.sqrt(2))
@@ -73,14 +71,16 @@ def generate_parallel_light_mask(mask_size,
     mask = np.zeros(shape=(canvas_y, canvas_x), dtype=np.float32)
     # initial mask's up left corner and bottom right corner coordinate
     init_mask_ul = (int(padding), int(padding))
-    init_mask_br = (int(padding+mask_size[0]), int(padding+mask_size[1]))
+    init_mask_br = (int(padding + mask_size[0]), int(padding + mask_size[1]))
     init_light_pos = (padding + pos_x, padding + pos_y)
     # fill in mask row by row with value decayed from center
     for i in range(canvas_y):
         if mode == "linear":
-            i_value = _decayed_value_in_linear(i, max_brightness, init_light_pos[1], linear_decay_rate)
+            i_value = _decayed_value_in_linear(
+                i, max_brightness, init_light_pos[1], linear_decay_rate)
         elif mode == "gaussian":
-            i_value = _decayed_value_in_norm(i, max_brightness, min_brightness, init_light_pos[1], mask_size[1])
+            i_value = _decayed_value_in_norm(
+                i, max_brightness, min_brightness, init_light_pos[1], mask_size[1])
         else:
             i_value = 0
         mask[i] = i_value
@@ -88,7 +88,8 @@ def generate_parallel_light_mask(mask_size,
     rotate_M = cv2.getRotationMatrix2D(init_light_pos, direction, 1)
     mask = cv2.warpAffine(mask, rotate_M, (canvas_x,  canvas_y))
     # crop
-    mask = mask[init_mask_ul[1]:init_mask_br[1], init_mask_ul[0]:init_mask_br[0]]
+    mask = mask[init_mask_ul[1]:init_mask_br[1],
+                init_mask_ul[0]:init_mask_br[0]]
     mask = np.asarray(mask, dtype=np.uint8)
     # add median blur
     mask = cv2.medianBlur(mask, 9)
@@ -98,11 +99,6 @@ def generate_parallel_light_mask(mask_size,
     # cv2.imshow("all", mask)
     # cv2.waitKey(0)
     return mask
-
-
-
-
-
 
 
 def add_parallel_light(image, light_position=None, direction=None, max_brightness=255, min_brightness=0,
@@ -129,8 +125,61 @@ def add_parallel_light(image, light_position=None, direction=None, max_brightnes
     return frame, mask
 
 
-    fig=plt.figure(figsize=(20, 20), dpi= 80, facecolor='w', edgecolor='k')
 
+def noisy(noise_typ, image):
+    """Parameters
+    ----------
+    image : ndarray
+        Input image data. Will be converted to float.
+    mode : str
+        One of the following strings, selecting the type of noise to add:
+
+        'gauss'     Gaussian-distributed additive noise.
+        'poisson'   Poisson-distributed noise generated from the data.
+        's&p'       Replaces random pixels with 0 or 1.
+        'speckle'   Multiplicative noise using out = image + n*image,where
+                    n is uniform noise with specified mean & variance.
+    """
+    if noise_typ == "gauss":
+        row, col, ch = image.shape
+        mean = 0
+        variances = [0.005, 0.003, 0.001, 0.0005]
+        var = random.choice(variances)
+        sigma = var**0.5
+        gauss = np.random.normal(mean, sigma, (row, col, 1))
+        gauss = gauss.reshape(row, col, 1)
+        noisy_im = image + gauss*255
+        return noisy_im
+    elif noise_typ == "s&p":
+        row, col, ch = image.shape
+        s_vs_p = 0.5
+        amount = 0.003
+        #amount = np.random.uniform(0.002,0.004,4)
+        out = np.copy(image)
+        # Salt mode
+        num_salt = np.ceil(amount * image.size * s_vs_p)
+        coords = [np.random.randint(0, i - 1, int(num_salt))
+                  for i in image.shape[0:2]]
+
+        out[tuple(coords)] = 255
+
+        # Pepper mode
+        num_pepper = np.ceil(amount * image.size * (1. - s_vs_p))
+        coords = [np.random.randint(0, i - 1, int(num_pepper))
+                  for i in image.shape[0:2]]
+        out[tuple(coords)] = 0
+        return out
+    elif noise_typ == "poisson":
+        vals = len(np.unique(image))
+        vals = 2 ** np.ceil(np.log2(vals))
+        noisy_im = np.random.poisson(image * vals) / float(vals)
+        return noisy_im
+    elif noise_typ == "speckle":
+        row, col, ch = image.shape
+        gauss = np.random.randn(row, col, ch)
+        gauss = gauss.reshape(row, col, ch)
+        noisy_im = image + image * gauss
+        return noisy_im
 
 
 def main():
@@ -145,6 +194,7 @@ def main():
     plt.show()
 
     cv2.imwrite('./test_results.png', im_final)
+
 
 """
 if name == '__main__':
