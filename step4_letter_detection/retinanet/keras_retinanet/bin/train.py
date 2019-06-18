@@ -281,6 +281,7 @@ def create_generators(args, preprocess_image):
             validation_generator = CSVGenerator(
                 args.val_annotations,
                 args.classes,
+                transform_generator=transform_generator,
                 **common_args
             )
         else:
