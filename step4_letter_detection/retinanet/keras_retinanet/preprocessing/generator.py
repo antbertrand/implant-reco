@@ -19,7 +19,7 @@ import random
 import warnings
 
 import keras
-
+from PIL import Image
 from ..utils.anchors import (
     anchor_targets_bbox,
     anchors_for_shape,
@@ -34,6 +34,7 @@ from ..utils.image import (
     resize_image,
 )
 from ..utils.transform import transform_aabb
+from ..utils.visualization import draw_annotations
 
 
 class Generator(keras.utils.Sequence):
@@ -190,10 +191,15 @@ class Generator(keras.utils.Sequence):
             # apply transformation to image
             image = apply_transform(transform, image, self.transform_parameters)
 
+
             # Transform the bounding boxes in the annotations.
             annotations['bboxes'] = annotations['bboxes'].copy()
             for index in range(annotations['bboxes'].shape[0]):
                 annotations['bboxes'][index, :] = transform_aabb(transform, annotations['bboxes'][index, :])
+        name = np.random.randint(0,500)
+        draw = image.copy()
+        draw_annotations(draw, annotations, color=(0, 255, 0))
+        draw.save('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}.png'.format(name))
 
         return image, annotations
 
