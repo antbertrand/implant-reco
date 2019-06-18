@@ -9,4 +9,6 @@ keras_retinanet/bin/debug.py --annotations csv ../gen_dataset/ann_train.csv ../g
 
 keras_retinanet/bin/evaluate2.py --save-path /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step5_evaluation/test_im csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/step4_ocr/splits_manual_rotation/ann_test_macchiato.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/step4_ocr/class_mapping.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/resnet50_csv_13_inf.h5
 
+
+
 keras_retinanet/bin/train.py --batch-size=1 --lr=1e-4 --random-transform --compute-val-loss --steps=780 --weighted-average --snapshot ./snapshots/gen_overfit.h5 --snapshot-path ./snapshots csv /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/step4_ocr/ann_train_mix.csv /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/step4_ocr/class_mapping.csv --val-annotations /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/step4_ocr/ann_val.csv
