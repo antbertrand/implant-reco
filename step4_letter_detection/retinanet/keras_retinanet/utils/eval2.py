@@ -164,7 +164,7 @@ def _get_annotations(generator):
     return all_annotations, dataset_annotations
 
 
-def get_code(boxes, scores, labels):
+def get_code(boxes, scores, labels, score_threshold = 0.2):
     """docstrung"""
     print("Getcode")
     labels_to_names = {0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5',
@@ -194,7 +194,7 @@ def get_code(boxes, scores, labels):
         y = box[1]
 
         # Filtering some boxes with a too low score and the -1 values that come from padding.
-        score_threshold = 0.2
+        #score_threshold = 0.2
         if label != -1 and score > score_threshold:
 
             # To initate anchor
@@ -238,7 +238,7 @@ def get_code(boxes, scores, labels):
 
 
 
-def compare_codes(dataset_detections, dataset_annotations):
+def compare_codes(dataset_detections, dataset_annotations, score_threshold):
     """docstrung"""
 
     nb_correct_codes = 0
@@ -253,7 +253,7 @@ def compare_codes(dataset_detections, dataset_annotations):
 
         # Get the detected code
         print("DETECTED")
-        detected_code = get_code(image_detections[0], image_detections[1], image_detections[2])
+        detected_code = get_code(image_detections[0], image_detections[1], image_detections[2], score_threshold=score_threshold)
         print(detected_code)
 
         # Get the true codes
@@ -304,7 +304,7 @@ def evaluate(
 
 
     # Compare codes true and obtained codes
-    compare_codes(dataset_detections, dataset_annotations)
+    compare_codes(dataset_detections, dataset_annotations, score_threshold)
 
 
 
