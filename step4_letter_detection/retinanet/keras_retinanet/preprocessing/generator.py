@@ -19,7 +19,7 @@ import random
 import warnings
 
 import keras
-from PIL import Image
+import cv2
 from ..utils.anchors import (
     anchor_targets_bbox,
     anchors_for_shape,
@@ -199,7 +199,7 @@ class Generator(keras.utils.Sequence):
         name = np.random.randint(0,500)
         draw = image.copy()
         draw_annotations(draw, annotations, color=(0, 255, 0))
-        draw.save('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}.png'.format(name))
+        cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}.png'.format(name), draw)
 
         return image, annotations
 
