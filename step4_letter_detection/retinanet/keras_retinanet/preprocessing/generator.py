@@ -196,10 +196,7 @@ class Generator(keras.utils.Sequence):
             annotations['bboxes'] = annotations['bboxes'].copy()
             for index in range(annotations['bboxes'].shape[0]):
                 annotations['bboxes'][index, :] = transform_aabb(transform, annotations['bboxes'][index, :])
-        name = np.random.randint(0,500)
-        #draw = image.copy()
-        #draw_annotations(draw, annotations, color=(0, 255, 0))
-        #draw.save('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}.png'.format(name))
+
 
         return image, annotations
 
@@ -247,7 +244,11 @@ class Generator(keras.utils.Sequence):
         for index in range(len(image_group)):
             # preprocess a single group entry
             image_group[index], annotations_group[index] = self.preprocess_group_entry(image_group[index], annotations_group[index])
-
+            name = np.random.randint(0,500)
+            draw = image_group[index].copy()
+            annotations = annotations_group[index]
+            draw_annotations(draw, annotations, color=(0, 255, 0))
+            cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}.png'.format(name), draw)
         return image_group, annotations_group
 
     def group_images(self):
