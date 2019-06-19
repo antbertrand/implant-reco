@@ -52,7 +52,7 @@ class Generator(keras.utils.Sequence):
         transform_parameters=None,
         compute_anchor_targets=anchor_targets_bbox,
         compute_shapes=guess_shapes,
-        preprocess_image=preprocess_image,
+        preprocess_image=None, #preprocess_image,
         config=None
     ):
         """ Initialize Generator object.
@@ -78,7 +78,7 @@ class Generator(keras.utils.Sequence):
         self.transform_parameters   = transform_parameters or TransformParameters()
         self.compute_anchor_targets = compute_anchor_targets
         self.compute_shapes         = compute_shapes
-        self.preprocess_image       = preprocess_image
+        self.preprocess_image       = None #preprocess_image
         self.config                 = config
 
         # Define groups
@@ -196,10 +196,7 @@ class Generator(keras.utils.Sequence):
             annotations['bboxes'] = annotations['bboxes'].copy()
             for index in range(annotations['bboxes'].shape[0]):
                 annotations['bboxes'][index, :] = transform_aabb(transform, annotations['bboxes'][index, :])
-        name = np.random.randint(0,500)
-        #draw = image.copy()
-        #draw_annotations(draw, annotations, color=(0, 255, 0))
-        #draw.save('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}.png'.format(name))
+
 
         return image, annotations
 
@@ -224,6 +221,7 @@ class Generator(keras.utils.Sequence):
         """ Preprocess image and its annotations.
         """
         # preprocess the image
+        print("self.preprocess_image",self.preprocess_image)
         image = self.preprocess_image(image)
 
         # resize image
@@ -245,7 +243,11 @@ class Generator(keras.utils.Sequence):
         for index in range(len(image_group)):
             # preprocess a single group entry
             image_group[index], annotations_group[index] = self.preprocess_group_entry(image_group[index], annotations_group[index])
-
+            name = np.random.randint(0,500)
+            draw = image_group[index].copy()
+            annotations = annotations_group[index]
+            draw_annotations(draw, annotations, color=(0, 255, 0))
+            cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}.png'.format(name), draw)
         return image_group, annotations_group
 
     def group_images(self):
