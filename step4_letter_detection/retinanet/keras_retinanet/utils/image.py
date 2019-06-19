@@ -33,13 +33,9 @@ def read_image_bgr(path):
     return image[:, :, ::-1].copy()
 
 
-<<<<<<< HEAD
+
 def preprocess_image(x, mode='nada'):
-||||||| merged common ancestors
-def preprocess_image(x, mode='caffe'):
-=======
-def preprocess_image(x, mode='tf'):
->>>>>>> 2dafbde73973fa365cb61a0522d562e3b8e14512
+
     """ Preprocess an image by subtracting the ImageNet mean.
 
     Args

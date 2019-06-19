@@ -47,12 +47,12 @@ class Generator(keras.utils.Sequence):
         batch_size=1,
         group_method='ratio',  # one of 'none', 'random', 'ratio'
         shuffle_groups=True,
-        image_min_side=1500, #800
-        image_max_side=1600, #1333
+        image_min_side=800, #800
+        image_max_side=1333, #1333
         transform_parameters=None,
         compute_anchor_targets=anchor_targets_bbox,
         compute_shapes=guess_shapes,
-        preprocess_image=None, #preprocess_image,
+        preprocess_image=preprocess_image,
         config=None
     ):
         """ Initialize Generator object.
@@ -78,7 +78,7 @@ class Generator(keras.utils.Sequence):
         self.transform_parameters   = transform_parameters or TransformParameters()
         self.compute_anchor_targets = compute_anchor_targets
         self.compute_shapes         = compute_shapes
-        self.preprocess_image       = None #preprocess_image
+        self.preprocess_image       = preprocess_image
         self.config                 = config
 
         # Define groups
