@@ -19,7 +19,7 @@ import random
 import warnings
 
 import keras
-from PIL import Image
+import cv2
 from ..utils.anchors import (
     anchor_targets_bbox,
     anchors_for_shape,
