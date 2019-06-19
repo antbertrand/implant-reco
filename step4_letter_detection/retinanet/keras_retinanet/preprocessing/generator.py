@@ -197,9 +197,9 @@ class Generator(keras.utils.Sequence):
             for index in range(annotations['bboxes'].shape[0]):
                 annotations['bboxes'][index, :] = transform_aabb(transform, annotations['bboxes'][index, :])
         name = np.random.randint(0,500)
-        draw = image.copy()
-        draw_annotations(draw, annotations, color=(0, 255, 0))
-        draw.save('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}.png'.format(name))
+        #draw = image.copy()
+        #draw_annotations(draw, annotations, color=(0, 255, 0))
+        #draw.save('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}.png'.format(name))
 
         return image, annotations
 
