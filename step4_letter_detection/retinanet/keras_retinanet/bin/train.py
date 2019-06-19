@@ -231,7 +231,6 @@ def create_generators(args, preprocess_image):
             max_translation=(0.05, 0.05),
             min_shear=0,
             max_shear=0,
-            brightness_range=[1.0, 1.9],
             min_scaling=(0.9, 0.9),
             max_scaling=(1.1, 1.1),
             flip_x_chance=0,
