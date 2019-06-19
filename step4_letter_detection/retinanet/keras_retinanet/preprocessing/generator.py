@@ -52,7 +52,7 @@ class Generator(keras.utils.Sequence):
         transform_parameters=None,
         compute_anchor_targets=anchor_targets_bbox,
         compute_shapes=guess_shapes,
-        preprocess_image=preprocess_image,
+        preprocess_image=None, #preprocess_image,
         config=None
     ):
         """ Initialize Generator object.
@@ -78,7 +78,7 @@ class Generator(keras.utils.Sequence):
         self.transform_parameters   = transform_parameters or TransformParameters()
         self.compute_anchor_targets = compute_anchor_targets
         self.compute_shapes         = compute_shapes
-        self.preprocess_image       = preprocess_image
+        self.preprocess_image       = None #preprocess_image
         self.config                 = config
 
         # Define groups
@@ -218,12 +218,14 @@ class Generator(keras.utils.Sequence):
     def resize_image(self, image):
         """ Resize an image using image_min_side and image_max_side.
         """
+        print("RESIZE =====", self.image_min_side)
         return resize_image(image, min_side=self.image_min_side, max_side=self.image_max_side)
 
     def preprocess_group_entry(self, image, annotations):
         """ Preprocess image and its annotations.
         """
         # preprocess the image
+        print("self.preprocess_image",self.preprocess_image)
         image = self.preprocess_image(image)
 
         # resize image
