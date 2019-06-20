@@ -2,13 +2,13 @@ keras_retinanet/bin/train.py --batch-size=1 --lr=1e-4 --random-transform --compu
 
 keras_retinanet/bin/train.py --batch-size=1 --lr=1e-4 --random-transform --compute-val-loss --steps=3600 --weighted-average --snapshot-path /storage/eurosilicone/ds_step4/models/ csv /storage/eurosilicone/ds_step4/gen_dataset_big/ann_train.csv /storage/eurosilicone/ds_step4/gen_dataset_big/class_mapping.csv --val-annotations /storage/eurosilicone/ds_step4/gen_dataset_big/ann_val.csv
 
-keras_retinanet/bin/convert_model.py /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/only-real-largerbox_1906_32.h5 /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/only_real_largerbox_1906_32_inf.h5 --no-class-specific-filter
+keras_retinanet/bin/convert_model.py /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/only_real_largerbox_1906_32.h5 /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/only_real_largerbox_1906_32_inf.h5 --no-class-specific-filter
 
 
 keras_retinanet/bin/debug.py --annotations csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/step4_ocr/ann_train_large.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/step4_ocr/class_mapping.csv
 
 # With save
-keras_retinanet/bin/evaluate2.py --score-threshold=0.48 --save-path /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step5_evaluation/test_im csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/step4_ocr/ann_val.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/step4_ocr/class_mapping.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/only-real-largerbox_1906_24_inf.h5
+keras_retinanet/bin/evaluate2.py --score-threshold=0.48 --save-path /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step5_evaluation/test_im csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/step4_ocr/ann_val.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/step4_ocr/class_mapping.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/only_real_largerbox_1906_32_inf.h5
 
 #Without save
 keras_retinanet/bin/evaluate2.py --score-threshold=0.48 csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/step4_ocr/ann_test_macchiato.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/step4_ocr/class_mapping.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/only-real-largerbox_1906_50_inf.h5
