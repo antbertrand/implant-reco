@@ -221,16 +221,14 @@ class Generator(keras.utils.Sequence):
         """ Preprocess image and its annotations.
         """
         # preprocess the image
-        draw1 = image.copy()
-        print('1')
+        #draw1 = image.copy()
         image = self.preprocess_image(image)
-        print('2')
-        name = np.random.randint(0,500)
-        draw2 = image.copy()
-        draw_annotations(draw1, annotations, color=(0, 255, 0))
-        draw_annotations(draw2, annotations, color=(0, 255, 0))
-        cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}_1.png'.format(name), draw1)
-        cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}_2.png'.format(name), draw2)
+        #name = np.random.randint(0,500)
+        #draw2 = image.copy()
+        #draw_annotations(draw1, annotations, color=(0, 255, 0))
+        #draw_annotations(draw2, annotations, color=(0, 255, 0))
+        #cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}_1.png'.format(name), draw1)
+        #cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}_2.png'.format(name), draw2)
 
 
         # resize image

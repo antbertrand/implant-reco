@@ -33,7 +33,7 @@ def read_image_bgr(path):
     return image[:, :, ::-1].copy()
 
 
-def preprocess_image(x, mode='nada'):
+def preprocess_image(x, mode='caffe'):
     """ Preprocess an image by subtracting the ImageNet mean.
 
     Args
@@ -51,7 +51,7 @@ def preprocess_image(x, mode='nada'):
 
     # covert always to float32 to keep compatibility with opencv
     x = x.astype(np.float32)
-    print("HERE", mode)
+
     if mode == 'tf':
         x /= 127.5
         x -= 1.
@@ -61,7 +61,7 @@ def preprocess_image(x, mode='nada'):
         x[..., 2] -= 123.68
 
     elif mode == 'nada':
-        print("NADA")
+
         x[..., 0] = x[..., 0]
         x[..., 1] = x[..., 1]
         x[..., 2] = x[..., 2]
