@@ -215,18 +215,20 @@ class Generator(keras.utils.Sequence):
     def resize_image(self, image):
         """ Resize an image using image_min_side and image_max_side.
         """
-        print("RESIZE =====", self.image_min_side)
         return resize_image(image, min_side=self.image_min_side, max_side=self.image_max_side)
 
     def preprocess_group_entry(self, image, annotations):
         """ Preprocess image and its annotations.
         """
         # preprocess the image
+        #draw1 = image.copy()
         image = self.preprocess_image(image)
-        name = np.random.randint(0,500)
-        draw = image.copy()
-        draw_annotations(draw, annotations, color=(0, 255, 0))
-        cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}.png'.format(name), draw)
+        #name = np.random.randint(0,500)
+        #draw2 = image.copy()
+        #draw_annotations(draw1, annotations, color=(0, 255, 0))
+        #draw_annotations(draw2, annotations, color=(0, 255, 0))
+        #cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}_1.png'.format(name), draw1)
+        #cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}_2.png'.format(name), draw2)
 
 
         # resize image
