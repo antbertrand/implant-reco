@@ -15,25 +15,25 @@ The implementation used is an implementation of RetinaNet in Keras : [keras_reti
 
 The dataset used in this step are the raw images out of the camera.
 It is stored on Azure, the URL of the blob container is the following :
-*https://eurosilicone.blob.core.windows.net/dsdetection*
+*https://eurosilicone.blob.core.windows.net/dsstep1*
 
-This will give you a dataset split in three : a train, validation and test set. The split has been done manually, to make sure very similar images do not end up in different splits, which would distort the results.
+This will give you a dataset split in three : a train, validation and test set. The split has been done manually, to make sure very similar images do not end up in same splits, which would distort the results.
 
 Split                      | Train    |     Validation   |     Test   
 ------------------------------|-------------|-------------|-------------------|
 Nb of images              |   256         |   52     |   40           
 
-You should also have an annotation folder in which there are the info of the true bouding boxes for all the images. This is only useful if you want to train a new network.
+You should also have an annotation folder in which there are the info of the bouding boxes of the chip for all the images. This will  only be useful if you want to train a new network.
 
 #### DL the models
 
 We used a RetinaNet, once trained it needs to be converted to an inference model before being able to be tested on new images.
 
 The inference model is stored on Azure :
-*https://eurosilicone.blob.core.windows.net/weights/retinanet_detection_resnet50_inf.h5*
+*https://eurosilicone.blob.core.windows.net/weights/retinanet_step1_resnet50_20190605101500.h5*
 
 The raw model can be used to continue training with the adding of new images. If needed is also stored on Azure :
-*https://eurosilicone.blob.core.windows.net/weights/retinanet_detection_resnet50.h5*
+*https://eurosilicone.blob.core.windows.net/weights/retinanet_step1_resnet50_inf_20190605101500.h5*
 
 ##### **In order to use the exact same commands showed later on, please place the downloaded models and dataset in their respecting folders of the repository.**
 
