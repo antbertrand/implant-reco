@@ -189,6 +189,7 @@ def resize_image(img, min_side=800, max_side=1333):
     Returns
         A resized image.
     """
+    
     # compute scale to resize the image
     scale = compute_resize_scale(img.shape, min_side=min_side, max_side=max_side)
 
