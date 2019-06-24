@@ -19,8 +19,15 @@ To test the detection on some images, clone this repo on your machine.
 ### 1. Dataset preparation
 
 #### Images
-The dataset we will use is the dataset obtained after step3, wich is the angle correction.
-In order to use the same commands that will be used later, you should place the 3 splits of the dataset, passed through step3, in *dataset/ds_step4_caracter_detector* in their corresponding folder, in *img_train* / *img_val* / *img_test*.     
+The dataset we will use is the dataset obtained after step3, which is the angle correction.
+We will use as the train set the correctly orientated dataset, that comes from the labels, not from the step3 output.
+For the test and validation set, the best would be to create two versions of them. One that contains images with the chip correctly detected and orientated ( that can be built from the labels), which would be used to evaluate independantly this step, and the other that contains the images as they come out of step3, which would be used to evaluate all the process globally.
+
+Doing this implies doing two labelling of the test and val sets. For now, we used a dataset where the validation set has the true orientations and the test set that is the output of the previous steps.
+
+In order to use the same commands that will be used later, you should place the 3 splits of the dataset, in *dataset/ds_step4_caracter_detector* in their corresponding folder, in *img_train* / *img_val* / *img_test*.     
+
+
 <br />
 
 #### Annotations

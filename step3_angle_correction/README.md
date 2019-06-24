@@ -76,17 +76,28 @@ If things do not work as expected here are listed some issues that may happen :
 ### 5. Evaluating the new models
 <br />
 
-The last cell of "classify_test.ipynb" will compute the mean of angle_error on a dataset (average deviation), the standard deviation and the nb of images classified with more than a 10 degree error.
+To evaluate the models you will use the img_evaluate folder that you can create using the last cell of *angle_correction.ipynb*.
+
+The last cell of *classify_test.ipynb* will compute the mean of angle_error on a dataset (average deviation) and the nb of images classified with less than a 20 degree error. It will also give the mean after removing the extremes ( diff > 20°).
 
 The models are chosen on their performances on the Validation set.
 
-Model version               | mAP (weighted average)   |  mAP (average) |     Nb of codes read  
+Model version               | angle_error   |  angle_error (diff < 20°) | nb (diff < 20°)
 ------------------------------|-------------|-------------|-------------------|
-retinanet_step4_resnet50_inf_20190605101500             |   69.28%         |   52     |   18 / 51  
+rotnet_step3_resnet50_20190606005100.hdf5   |   10.56 °   |   3.58° |  48/52     
 
 
 The models are then evaluated on an holdout Test set.
 
-Model version               | mAP (weighted average)   |  mAP (average) |     Code   
+Model version               | angle_error   |  angle_error (diff < 20°) | nb (diff < 20°)
 ------------------------------|-------------|-------------|-------------------|
-Nb of images              |   256         |   52     |   40  
+rotnet_step3_resnet50_20190606005100.hdf5   |   15.05 °   |   2.87° |  33/39     
+
+
+
+<br />
+### 6. Creating the dataset for the next step
+<br />
+
+The step4 will need the corrected images as an input.
+To create it, use the first cells of *classify_test.ipynb*.

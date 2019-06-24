@@ -69,7 +69,8 @@ To test the network use the chip_detector.py file.
 ### 1. Dataset preparation
 
 #### Images
-The dataset we will use are the raw images (out of the camera). The way to download it is described previously.
+The dataset we will use are the raw images (out of the camera). The way to download it is described previously. <br />
+We will then resize them to (450, 300), which saves the ratio.
 In order to use the same commands that will be used later, you should place the 3 splits of the dataset, in *ds_step1_chip_detector* in their corresponding folder, *img_train* / *img_val* / *img_test*.     
 <br />
 
@@ -101,10 +102,10 @@ Each line should use the following format:
 class_name,id
 ```
 ##### Annotation conversion from supervisely
-You should have labelized the whole dataset. If you did it on supervisly, we need to convert them to the csv format described previously.
+You should have labelized the whole dataset. If you did it on supervisely, we need to convert them to the csv format described previously.
 
-To do so, use the notebook creating_labels.ipynb in the ds_step4_caracter_detector folder. (TODO: do it cleanly in a independant .py file)
-
+To do so, use the notebook creating_labels.ipynb in the ds_step1_chip_detector folder. (TODO: do it cleanly in a independant .py file)
+It will, convert the annotations and resize the images in the destination folder.
 
 <br />
 
@@ -212,18 +213,19 @@ parser.add_argument('--config',           help='Path to a configuration paramete
 
 The command we used to evaluate our model is the following :
 ```bash
-keras_retinanet/bin/evaluate2.py --score-threshold=0.48 --save-path /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step5_evaluation/test_im csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_val.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/class_mapping.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/model_name_inf.h5
+keras_retinanet/bin/evaluate.py --score-threshold=0.2 csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step1_chip_detector/ann_test.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step1_chip_detector/class_mapping.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step1_chip_detection/models/retinanet_step1_resnet50_inf_20190605101500.h5
 ```
 
 The models are chosen on their performances on the Validation set.
 
-Model version               | mAP (weighted average)   |  mAP (average) |     Nb of codes read  
-------------------------------|-------------|-------------|-------------------|
-retinanet_step4_resnet50_inf_20190605101500             |   69.28%         |   52     |   18 / 51  
+Model version               | mAP ( average)
+------------------------------|-------------
+retinanet_step1_resnet50_inf_20190605101500.h5              |         100%  
+
 
 
 The models are then evaluated on an holdout Test set.
 
-Model version               | mAP (weighted average)   |  mAP (average) |     Code   
-------------------------------|-------------|-------------|-------------------|
-Nb of images              |   256         |   52     |   40  
+Model version               | mAP ( average)
+------------------------------|-------------
+retinanet_step1_resnet50_inf_20190605101500.h5               |         97.01%  

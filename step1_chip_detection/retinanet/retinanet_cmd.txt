@@ -1,2 +1,31 @@
-keras_retinanet/bin/train.py --batch-size=1 --backbone=mobilenet160_1.0 --steps=10 csv ~/Documents/NumeriCube/eurosilicone/dataset/resized_x10/2/ann_test.csv ~/Documents/NumeriCube/eurosilicone/dataset/resized_x10/2/class_mapping.csv
+diff -rq /home/abert/Documents/keras-retinanet-master/keras_retinanet /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/step4_letter_detection/retinanet/keras_retinanet
 
+diff /home/abert/Documents/keras-retinanet-master/keras_retinanet/utils/transform.py /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/step4_letter_detection/retinanet/keras_retinanet/utils/transform.py
+
+keras_retinanet/bin/train.py --batch-size=1 --lr=1e-4 --random-transform --compute-val-loss --steps=800 --weighted-average --snapshot-path ./snapshots csv /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ds_gen/ann_train.csv /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ds_gen/class_mapping.csv --val-annotations /home/abert/Documents/NumeriCube/eurosilicone/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ds_gen/ann_test.csv
+
+keras_retinanet/bin/train.py --batch-size=1 --lr=1e-4 --random-transform --compute-val-loss --steps=3600 --weighted-average --snapshot-path /storage/eurosilicone/ds_step4/models/ csv /storage/eurosilicone/ds_step4/gen_dataset_big/ann_train.csv /storage/eurosilicone/ds_step4/gen_dataset_big/class_mapping.csv --val-annotations /storage/eurosilicone/ds_step4/gen_dataset_big/ann_val.csv
+
+keras_retinanet/bin/convert_model.py /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/only_real_noprepro_2006_28.h5 /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/only_real_noprepro_2006_28_inf.h5 --no-class-specific-filter
+
+
+keras_retinanet/bin/debug.py --annotations csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_train_large.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/class_mapping.csv
+
+# With save
+keras_retinanet/bin/evaluate2.py --score-threshold=0.48 --save-path /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step5_evaluation/test_im csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/step4_ocr/ann_val.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/step4_ocr/class_mapping.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/mix_model_1806_13_inf.h5
+
+#Without save
+keras_retinanet/bin/evaluate.py --score-threshold=0.2 csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step1_chip_detector/ann_test.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step1_chip_detector/class_mapping.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step1_chip_detection/models/retinanet_step1_resnet50_inf_20190605101500.h5
+
+
+#On test set
+keras_retinanet/bin/evaluate2.py --score-threshold=0.48 csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/splits_manual_rotation/ann_test_macchiato.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/class_mapping.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/only_real_noprepro_2006_50_inf.h5
+
+
+keras_retinanet/bin/train.py --batch-size=1 --lr=1e-4 --random-transform --freeze-backbone --compute-val-loss --steps=260 --weighted-average --weights ./snapshots/gen_overfit_17061504.h5 --snapshot-path ./snapshots csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_train.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/class_mapping.csv --val-annotations /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_val.csv
+
+
+keras_retinanet/bin/train.py --batch-size=1 --lr=1e-4 --random-transform --compute-val-loss --steps=260 --weighted-average --snapshot-path ./snapshots csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/gen_dataset/ann_train.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/class_mapping.csv --val-annotations /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/gen_dataset/ann_val.csv
+
+
+keras_retinanet/bin/train.py --batch-size=1 --lr=1e-4 --random-transform --compute-val-loss --steps=260 --weighted-average --snapshot-path ./snapshots csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_train.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/class_mapping.csv --val-annotations /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_val.csv
