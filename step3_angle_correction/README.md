@@ -39,9 +39,12 @@ In the actual code doing it, it first corrects it so that all image are upright,
 
 We did the labelization using the vector tool of supervisely. The vector must be oriented vertically, with one point near the center and the other marking the top of the chip.
 
+<br /><br />
+
+
 The code in *angle_correction.ipynb* will rotate it back to the upright position.
 
-The code in *create_dataset.py* will do the rotations and saves the images in the 360 fodlers.
+The code in *create_dataset.py* will do the rotations and save the images in the 360 fodlers.
 
 
 
@@ -51,50 +54,29 @@ The code in *create_dataset.py* will do the rotations and saves the images in th
 ### 2. Training
 <br />
 The model is trained using a resnet50 network.
-You have to run the script directly from inside the folder `retinanet`.
+You have to run the script in *train_angle_resnet.py*. The only thing you will have to modify is the *DATA_DIR* and the *output_folder*.
 
-Every parameters is given through the command line as arguments. The following lists all the different arguments that can be given to the train.py script :
+A custom metric called angle_error will compute the error on the predicted angle. The CheckPointer uses this metric , and will save the model at each epoch where the angle_error is minimum.
 
 
-### 3. Debugging (if needed)
+### 3. Testing
+
+You can use the *classify_test.ipynb* notebook, to test the trained network on some images. It will plot the input image and its corrected rotation.
+
+
+### 4. Debugging (if needed)
 <br />
-If things do not work as expected there is a [`debug.py`](https://github.com/fizyr/keras-retinanet/blob/master/keras_retinanet/bin/debug.py) tool to help find the most common mistakes.
+If things do not work as expected here are listed some issues that may happen :
 
-Particularly helpful is the `--annotations` flag which displays your annotations on the images from your dataset. Annotations are colored in green when there are anchors available and colored in red when there are no anchors available. If an annotation doesn't have anchors available,* it means it won't contribute to training. It is normal for a small amount of annotations to show up in red, but if most or all annotations are red there is cause for concern. The most common issues are that the annotations are too small or too oddly shaped (stretched out).
+- Problem with the rotation of small images. If you kept the code as it is it shoudln't happen but it is still interesting to notice that if you rescale the images to 224x224 before doing all the rotations, the model will learn to recognize some artefacts or the pixel structure that appear with the rotation. On bigger images, this issue doesn't appear.
 
-```shell
-keras_retinanet/bin/debug.py --annotations csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_train_large.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/class_mapping.csv
-```
+- In this model, we rescaled the input images to [0; 1]. You must not forget to divide by 255 the pixel values of any input image, for inference or for training. You can also decide to remove that as it is not all useful, and therefore have to retrain a model without it.
 
 <br />
-### 4. Evaluating the new models
+### 5. Evaluating the new models
 <br />
-The script `evaluate.py` can be used to evaluate a model.
-It computes the mAP on the whole test set and other useful metrics.
-With the argument `--save-path`, the images with the true and predicted bouding boxes can be saved in a specific folder.
 
-```python
-csv_parser = subparsers.add_parser('csv')
-csv_parser.add_argument('annotations', help='Path to CSV file containing annotations for evaluation.')
-csv_parser.add_argument('classes', help='Path to a CSV file containing class label mapping.')
-
-parser.add_argument('model',              help='Path to RetinaNet model.')
-parser.add_argument('--convert-model',    help='Convert the model to an inference model (ie. the input is a training model).', action='store_true')
-parser.add_argument('--backbone',         help='The backbone of the model.', default='resnet50')
-parser.add_argument('--gpu',              help='Id of the GPU to use (as reported by nvidia-smi).')
-parser.add_argument('--score-threshold',  help='Threshold on score to filter detections with (defaults to 0.05).', default=0.05, type=float)
-parser.add_argument('--iou-threshold',    help='IoU Threshold to count for a positive detection (defaults to 0.5).', default=0.5, type=float)
-parser.add_argument('--max-detections',   help='Max Detections per image (defaults to 100).', default=100, type=int)
-parser.add_argument('--save-path',        help='Path for saving images with detections (doesn\'t work for COCO).')
-parser.add_argument('--image-min-side',   help='Rescale the image so the smallest side is min_side.', type=int, default=800)
-parser.add_argument('--image-max-side',   help='Rescale the image if the largest side is larger than max_side.', type=int, default=1333)
-parser.add_argument('--config',           help='Path to a configuration parameters .ini file (only used with --convert-model).')
-```
-
-The command we used to evaluate our model is the following :
-```bash
-keras_retinanet/bin/evaluate2.py --score-threshold=0.48 --save-path /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step5_evaluation/test_im csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_val.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/class_mapping.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/model_name_inf.h5
-```
+The last cell of "classify_test.ipynb" will compute the mean of angle_error on a dataset (average deviation), the standard deviation and the nb of images classified with more than a 10 degree error.
 
 The models are chosen on their performances on the Validation set.
 
