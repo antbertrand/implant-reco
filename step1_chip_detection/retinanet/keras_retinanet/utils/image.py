@@ -33,7 +33,7 @@ def read_image_bgr(path):
     return image[:, :, ::-1].copy()
 
 
-def preprocess_image(x, mode='caffe'):
+def preprocess_image(x, mode='nada'):
     """ Preprocess an image by subtracting the ImageNet mean.
 
     Args
@@ -59,6 +59,9 @@ def preprocess_image(x, mode='caffe'):
         x[..., 0] -= 103.939
         x[..., 1] -= 116.779
         x[..., 2] -= 123.68
+
+    elif mode == 'nada':
+        x = x
 
     return x
 
@@ -189,7 +192,7 @@ def resize_image(img, min_side=800, max_side=1333):
     Returns
         A resized image.
     """
-    
+
     # compute scale to resize the image
     scale = compute_resize_scale(img.shape, min_side=min_side, max_side=max_side)
 

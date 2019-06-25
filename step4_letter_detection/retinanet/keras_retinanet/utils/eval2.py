@@ -20,6 +20,7 @@ from .visualization import draw_detections, draw_annotations
 import keras
 import numpy as np
 import os
+import pandas as pd
 
 import cv2
 import progressbar
@@ -236,41 +237,79 @@ def get_code(boxes, scores, labels, score_threshold = 0.2):
 
     return lines
 
+def read_csv_code():
+    csv_path = '/home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/codes_val.csv'
+    data_code = pd.read_csv(csv_path)
 
+    return data_code
 
-def compare_codes(dataset_detections, dataset_annotations, score_threshold):
+def get_true_code(im_path):
+    print("image = ", os.path.basename(im_path))
+    data_code = read_csv_code()
+    chip_data = data_code.loc[data_code['image_name'] == os.path.basename(im_path)]
+    code = [ chip_data.iloc[0,1], chip_data.iloc[0,2] ,chip_data.iloc[0,3]]
+    quality = chip_data.iloc[0,4]
+    read = chip_data.iloc[0,5]
+    return code, quality, read
+
+def compare_codes(generator, dataset_detections, dataset_annotations, score_threshold):
     """docstrung"""
 
     nb_correct_codes = 0
+    nb_both = 0
+    nb_noone = 0
+    nb_human_notai = 0
+    nb_ai_nothuman = 0
 
     if len(dataset_detections) != len(dataset_annotations):
         print("problem unequal size of dataset_ann and dataset_detec", len(dataset_detections) , len(dataset_annotations))
 
 
     for i in progressbar.progressbar(range(len(dataset_detections)), prefix='Comparing codes: '):
+        print("NUMERO {}".format(i))
         image_detections = dataset_detections[i]
         image_annotations = dataset_annotations[i]
 
         # Get the detected code
-        print("DETECTED")
         detected_code = get_code(image_detections[0], image_detections[1], image_detections[2], score_threshold=score_threshold)
-        print(detected_code)
+
 
         # Get the true codes
         # ( Score of 1 because true code)
-        true_code = get_code(image_annotations[0], [1 for i in range(len(image_annotations[0]))], image_annotations[1])
-        print(true_code)
+        #true_code = get_code(image_annotations[0], [1 for i in range(len(image_annotations[0]))], image_annotations[1])
+        #read_bool = 0
+        true_code, im_quality, read_bool = get_true_code(generator.image_names[i])
+
+        print("Detected =", detected_code)
+        print("True     =", true_code)
         if detected_code == true_code:
 
             print('Youhou ! correct code', detected_code)
             nb_correct_codes += 1
 
+            if read_bool == 1:
+                nb_both += 1
+
+            else:
+                nb_ai_nothuman += 1
+
         else:
             #Let's try to find out what went wrong more precisely
-            print("notgood")
-    # Print good score accuracy
-    print("There were {} correctly detected codes, acc : {}".format(nb_correct_codes, nb_correct_codes/len(dataset_annotations)))
+            if read_bool == 1:
+                nb_human_notai += 1
 
+            else:
+                nb_noone += 1
+
+            print("notgood")
+        print("==========================================")
+    # Print good score accuracy
+    print("There were {} correctly detected codes, acc : {}\n".format(nb_correct_codes, nb_correct_codes/len(dataset_annotations)))
+    print("Out of the {} readable codes (seen by human eye), {} were read by the ai => {}% \n".format(nb_both + nb_human_notai, nb_ai_nothuman + nb_both, 100*(nb_ai_nothuman + nb_both)/(nb_human_notai+ nb_both)))
+    print("There were {} correctly detected codes by ai and by a human eye\n".format(nb_both))
+    print("There were {} correctly detected codes by ai but not by a human eye\n".format(nb_ai_nothuman))
+    print("There were {} correctly detected codes by a human eye but not by the ai\n".format(nb_human_notai))
+    print("There were {} falsely detected codes by a human eye and by the ai\n".format(nb_noone))
     return None
 
 
@@ -304,7 +343,7 @@ def evaluate(
 
 
     # Compare codes true and obtained codes
-    compare_codes(dataset_detections, dataset_annotations, score_threshold)
+    compare_codes(generator, dataset_detections, dataset_annotations, score_threshold)
 
 
 
@@ -314,6 +353,7 @@ def evaluate(
     # pickle.dump(all_annotations, open('all_annotations.pkl', 'wb'))
 
     # process detections and annotations
+
     for label in range(generator.num_classes()):
         if not generator.has_label(label):
             continue
@@ -324,6 +364,7 @@ def evaluate(
         num_annotations = 0.0
 
         for i in range(generator.size()):
+            
             detections = all_detections[i][label]
             annotations = all_annotations[i][label]
             num_annotations += annotations.shape[0]
