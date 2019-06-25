@@ -48,7 +48,8 @@ class ChipDetector():
                  model_prefix='retinanet_step1_resnet50_inf'):
 
         # Checking if the used model is the best
-        model_path = update_model(abs_path, model_prefix)
+        model_path = '/home/numericube/Documents/current_projects/gcaesthetics-implantbox/step1_chip_detection/models/retinanet_step1_resnet50_inf_20190605101500.h5'
+        #model_path = update_model(abs_path, model_prefix)
 
         self.model = models.load_model(model_path, backbone_name='resnet50')
         self.labels_to_names = {0: 'pastille'}
