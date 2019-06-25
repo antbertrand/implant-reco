@@ -180,14 +180,14 @@ def get_code(boxes, scores, labels, score_threshold = 0.2):
 
     # Stores the anchor value for each line
     # anchor = [anchor_line1, anchor_line1, anchor_line1]
-    anchor = [0, 0, 0]
+    anchor = [0, 0, 0, 0, 0]
 
     # Sorting the boxes by the y value of the top left coordinate
     infos = zip(boxes, scores, labels)
     infos_sorted = sorted(infos, key=lambda x: x[0][1])
 
     # infos_lines = [infos_line1, infos_line2, infos_line3]
-    infos_lines = [[], [], []]
+    infos_lines = [[], [], [], [], []]
 
     # Passing through all the boxes
     for box, score, label in infos_sorted:
@@ -205,7 +205,7 @@ def get_code(boxes, scores, labels, score_threshold = 0.2):
             # Goes into that condition when another group starts
             if abs(y - anchor[current_grp]) > 50:
                 current_grp += 1
-                if current_grp > 2:
+                if current_grp > 6:
                     print("The caracters have been grouped in more than 3 lines")
                     break
                 anchor[current_grp] = y
@@ -217,28 +217,36 @@ def get_code(boxes, scores, labels, score_threshold = 0.2):
 
             compteur += 1
 
+    # Keeping only the 3 lines with the most caracters
+    size_grp = [len(i) for i in infos_lines]
+    sorted_size_index = sorted(range(len(size_grp)), reverse = True, key=lambda k: size_grp[k])
+    index_final = sorted_size_index[0:3]
+    index_final = sorted(index_final)
+
+    infos_lines_final = [infos_lines[i] for i in index_final]
+
     # Sorting each lines on the x coordinates.
     # (aren't we reading from left to right ?)
-    infos_lines[0] = sorted(infos_lines[0], key=lambda x: x[0][0])
-    infos_lines[1] = sorted(infos_lines[1], key=lambda x: x[0][0])
-    infos_lines[2] = sorted(infos_lines[2], key=lambda x: x[0][0])
+    infos_lines_final[0] = sorted(infos_lines_final[0], key=lambda x: x[0][0])
+    infos_lines_final[1] = sorted(infos_lines_final[1], key=lambda x: x[0][0])
+    infos_lines_final[2] = sorted(infos_lines_final[2], key=lambda x: x[0][0])
 
     # Printing text
     lines = ['', '', '']
     # Line 1
-    for infos_carac in infos_lines[0]:
+    for infos_carac in infos_lines_final[0]:
         lines[0] += labels_to_names[infos_carac[2]]
     # Line 2
-    for infos_carac in infos_lines[1]:
+    for infos_carac in infos_lines_final[1]:
         lines[1] += labels_to_names[infos_carac[2]]
     # Line 3
-    for infos_carac in infos_lines[2]:
+    for infos_carac in infos_lines_final[2]:
         lines[2] += labels_to_names[infos_carac[2]]
 
     return lines
 
 def read_csv_code():
-    csv_path = '/home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/codes_val.csv'
+    csv_path = '/home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/codes_test.csv'
     data_code = pd.read_csv(csv_path)
 
     return data_code
