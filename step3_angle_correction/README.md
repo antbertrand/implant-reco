@@ -16,6 +16,14 @@ To test the detection on some images, clone this repo on your machine.
 
 ## Using it
 
+##### Preprocessing on the images
+
+The preprocessing to add to any input images using the actual model is the following:
+- equalizing its histogram
+- rescaling the pixel range from [0, 255] to [0, 1]
+- resizing it to (224, 224)
+
+<br /><br />
 
 ## Re-training it
 

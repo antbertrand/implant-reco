@@ -62,6 +62,13 @@ TODO: Check more precisely what is needed and for what. Also maybe give the requ
 
 ## Using it
 
+##### Preprocessing on the images
+
+The preprocessing to add to any input images using the actual model is the following:
+- resizing it to (300 , 450)
+- equalizing its histogram
+
+
 To test the network use the chip_detector.py file.
 <br /><br />
 ## Re-training it
@@ -106,6 +113,8 @@ You should have labelized the whole dataset. If you did it on supervisely, we ne
 
 To do so, use the notebook creating_labels.ipynb in the ds_step1_chip_detector folder. (TODO: do it cleanly in a independant .py file)
 It will, convert the annotations and resize the images in the destination folder.
+
+
 
 <br />
 
@@ -221,7 +230,7 @@ The models are chosen on their performances on the Validation set.
 Model version               | mAP ( average)
 ------------------------------|-------------
 retinanet_step1_resnet50_inf_20190605101500.h5              |         100%  
-
+retinanet_step1_resnet50_inf_20190624175900.h5           |            100%
 
 
 The models are then evaluated on an holdout Test set.
@@ -229,3 +238,4 @@ The models are then evaluated on an holdout Test set.
 Model version               | mAP ( average)
 ------------------------------|-------------
 retinanet_step1_resnet50_inf_20190605101500.h5               |         97.01%  
+retinanet_step1_resnet50_inf_20190624175900.h5           |         99.55%
