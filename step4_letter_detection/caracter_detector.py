@@ -71,7 +71,7 @@ class CaracDetector():
                                 22: 'L', 23: 'M', 24: 'N', 25: 'O', 26: 'P', 27: 'Q', 28: 'R',
                                 29:'S', 30: 'T', 31: 'U', 32: 'V', 33: 'W', 34: 'X', 35: 'Y', 36: 'Z'}
 
-        self.score_treshhold = 0.40
+        self.score_threshhold = 0.40
 
 
     def draw_caption(self, image, box, caption):
@@ -134,7 +134,7 @@ class CaracDetector():
         anchor = [0, 0, 0, 0, 0]
 
         # Sorting the boxes by the y value of the top left coordinate
-        infos = zip(boxes, scores, labels)
+        infos = zip(boxes[0], scores[0], labels[0])
         infos_sorted = sorted(infos, key=lambda x: x[0][1])
 
         # infos_lines = [infos_line1, infos_line2, infos_line3]
@@ -146,7 +146,6 @@ class CaracDetector():
             y = box[1]
 
             # Filtering some boxes with a too low score and the -1 values that come from padding.
-            #score_threshold = 0.2
             if label != -1 and score > self.score_threshhold:
 
                 # To initate anchor
@@ -201,7 +200,7 @@ class CaracDetector():
         for idx_ln, ln in enumerate(infos_lines_final):
 
             for idx_crt, crt in enumerate(ln):
-                print(crt)
+
                 if crt[2] == 10:
                     info_lambda.append([crt[1] ,idx_crt, idx_ln])
 
@@ -213,11 +212,7 @@ class CaracDetector():
         info_lambda = sorted(info_lambda, reverse =True, key= lambda x: x[1])
 
         for n_lambda in info_lambda:
-            #print('n_lambda', n_lambda)
-            #print('remove',infos_lines_final[n_lambda[2]][n_lambda[1]])
-            #print(infos_lines_final[2][1])
             del infos_lines_final[n_lambda[2]][n_lambda[1]]
-            print(infos_lines_final)
 
 
         # Printing text

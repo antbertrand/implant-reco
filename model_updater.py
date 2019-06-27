@@ -122,7 +122,6 @@ def check_model_md5(abs_path,
     """
     # Path where is stored the currently used model
     model_path = os.path.join(abs_path, "models", blob_name)
-    print(model_path)
 
     # Check if file exists / is fresh
     download_it = True
