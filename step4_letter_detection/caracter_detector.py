@@ -23,7 +23,8 @@ import keras
 # set tf backend to allow memory to grow, instead of claiming everything
 import tensorflow as tf
 
-from model_updater import update_model
+#from model_updater import update_model
+from model_updater import check_model_md5
 from .retinanet.keras_retinanet import models
 from .retinanet.keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
 from .retinanet.keras_retinanet.utils.visualization import draw_box, draw_caption
@@ -53,10 +54,13 @@ class CaracDetector():
     """
 
     def __init__(self,
-                 model_prefix='retinanet_step4_resnet50_inf'):
+                 model_name='retinanet_step4_resnet50_inf_20190605101500.h5'):
 
         # Checking if the used model is the best
-        model_path = update_model(abs_path, model_prefix)
+        #model_path = update_model(abs_path, model_prefix)
+
+        # Checking if the used model is the same as the one online
+        model_path = check_model_md5(abs_path, model_name)
 
         # Load model
         self.model = models.load_model(model_path, backbone_name='resnet50')
