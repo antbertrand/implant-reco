@@ -166,8 +166,9 @@ def _get_annotations(generator):
 
 
 def get_code(boxes, scores, labels, score_threshold = 0.2):
-    """docstrung"""
-    print("Getcode")
+    """ Will process the boxes in the output : the full code
+        Also does some post processing to remove some caracters"""
+
     labels_to_names = {0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5',
                        6: '6', 7: '7', 8: '8', 9: '9', 10: '/', 11: 'A', 12: 'B', 13: 'C',
                        14: 'D', 15: 'E', 16: 'F', 17: 'G', 18: 'H', 19: 'I', 20: 'J', 21: 'K',
@@ -249,7 +250,7 @@ def get_code(boxes, scores, labels, score_threshold = 0.2):
 
     #Sorting with the index, in order to later remove them without having to reindex.
     info_lambda = sorted(info_lambda, reverse =True, key= lambda x: x[1])
-    
+
     for n_lambda in info_lambda:
         #print('n_lambda', n_lambda)
         #print('remove',infos_lines_final[n_lambda[2]][n_lambda[1]])
@@ -399,7 +400,7 @@ def evaluate(
         num_annotations = 0.0
 
         for i in range(generator.size()):
-            
+
             detections = all_detections[i][label]
             annotations = all_annotations[i][label]
             num_annotations += annotations.shape[0]

@@ -64,11 +64,14 @@ class CaracDetector():
 
         # Load model
         self.model = models.load_model(model_path, backbone_name='resnet50')
+
         self.labels_to_names = {0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5',
                                 6: '6', 7: '7', 8: '8', 9: '9', 10: '/', 11: 'A', 12: 'B', 13: 'C',
                                 14: 'D', 15: 'E', 16: 'F', 17: 'G', 18: 'H', 19: 'I', 20: 'J', 21: 'K',
                                 22: 'L', 23: 'M', 24: 'N', 25: 'O', 26: 'P', 27: 'Q', 28: 'R',
                                 29:'S', 30: 'T', 31: 'U', 32: 'V', 33: 'W', 34: 'X', 35: 'Y', 36: 'Z'}
+
+        self.score_treshhold = 0.40
 
 
     def draw_caption(self, image, box, caption):
@@ -120,20 +123,22 @@ class CaracDetector():
         boxes, scores, labels = self.model.predict_on_batch(
             np.expand_dims(image, axis=0))
 
+        # READING CODE
+
         # Variable initialization
         compteur = 0
         current_grp = 0
 
         # Stores the anchor value for each line
         # anchor = [anchor_line1, anchor_line1, anchor_line1]
-        anchor = [0, 0, 0]
+        anchor = [0, 0, 0, 0, 0]
 
         # Sorting the boxes by the y value of the top left coordinate
-        infos = zip(boxes[0], scores[0], labels[0])
+        infos = zip(boxes, scores, labels)
         infos_sorted = sorted(infos, key=lambda x: x[0][1])
 
         # infos_lines = [infos_line1, infos_line2, infos_line3]
-        infos_lines = [[], [], []]
+        infos_lines = [[], [], [], [], []]
 
         # Passing through all the boxes
         for box, score, label in infos_sorted:
@@ -141,8 +146,8 @@ class CaracDetector():
             y = box[1]
 
             # Filtering some boxes with a too low score and the -1 values that come from padding.
-            score_threshold = 0.2
-            if label != -1 and score > score_threshold:
+            #score_threshold = 0.2
+            if label != -1 and score > self.score_threshhold:
 
                 # To initate anchor
                 if compteur == 0:
@@ -151,8 +156,8 @@ class CaracDetector():
                 # Goes into that condition when another group starts
                 if abs(y - anchor[current_grp]) > 50:
                     current_grp += 1
-                    if current_grp > 2:
-                        print("The caracters have been grouped in more than 3 lines")
+                    if current_grp > 4:
+                        print("The caracters have been grouped in more than 5 lines")
                         break
                     anchor[current_grp] = y
 
@@ -171,22 +176,60 @@ class CaracDetector():
 
                 compteur += 1
 
+
+        # O. Keeping only the 3 lines with the most caracters
+        # o. List of the lengths of each group
+        size_grp = [len(i) for i in infos_lines]
+        # Sorting on the length
+        sorted_size_index = sorted(range(len(size_grp)), reverse = True, key=lambda k: size_grp[k])
+        # Keeping the 3 biggest
+        index_final = sorted_size_index[0:3]
+        index_final = sorted(index_final)
+
+        infos_lines_final = [infos_lines[i] for i in index_final]
+
         # Sorting each lines on the x coordinates.
         # (aren't we reading from left to right ?)
-        infos_lines[0] = sorted(infos_lines[0], key=lambda x: x[0][0])
-        infos_lines[1] = sorted(infos_lines[1], key=lambda x: x[0][0])
-        infos_lines[2] = sorted(infos_lines[2], key=lambda x: x[0][0])
+        infos_lines_final[0] = sorted(infos_lines_final[0], key=lambda x: x[0][0])
+        infos_lines_final[1] = sorted(infos_lines_final[1], key=lambda x: x[0][0])
+        infos_lines_final[2] = sorted(infos_lines_final[2], key=lambda x: x[0][0])
+
+        # Passing through all the lines. Useful for some filtering.
+        # 1. Keeping only the '/' with the highest score.
+        info_lambda = []
+
+        for idx_ln, ln in enumerate(infos_lines_final):
+
+            for idx_crt, crt in enumerate(ln):
+                print(crt)
+                if crt[2] == 10:
+                    info_lambda.append([crt[1] ,idx_crt, idx_ln])
+
+        # Sorting with the score
+        info_lambda = sorted(info_lambda, reverse= True, key=lambda x: x[0])
+        info_lambda = info_lambda[1:]
+
+        #Sorting with the index, in order to later remove them without having to reindex.
+        info_lambda = sorted(info_lambda, reverse =True, key= lambda x: x[1])
+
+        for n_lambda in info_lambda:
+            #print('n_lambda', n_lambda)
+            #print('remove',infos_lines_final[n_lambda[2]][n_lambda[1]])
+            #print(infos_lines_final[2][1])
+            del infos_lines_final[n_lambda[2]][n_lambda[1]]
+            print(infos_lines_final)
+
 
         # Printing text
         lines = ['', '', '']
         # Line 1
-        for infos_carac in infos_lines[0]:
+        for infos_carac in infos_lines_final[0]:
             lines[0] += self.labels_to_names[infos_carac[2]]
         # Line 2
-        for infos_carac in infos_lines[1]:
+        for infos_carac in infos_lines_final[1]:
             lines[1] += self.labels_to_names[infos_carac[2]]
         # Line 3
-        for infos_carac in infos_lines[2]:
+        for infos_carac in infos_lines_final[2]:
             lines[2] += self.labels_to_names[infos_carac[2]]
 
         return draw, lines
