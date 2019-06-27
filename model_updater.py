@@ -157,4 +157,4 @@ def check_model_md5(abs_path,
             blob_name=blob_name,
             file_path=model_path,
         )
-    return os.path.join(model_path, blob_name)
+    return model_path

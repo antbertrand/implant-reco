@@ -54,7 +54,7 @@ class ChipDetector():
 
         # Checking if the used model is the same as the one online
         model_path = check_model_md5(abs_path, model_name)
-
+        print("MODEL1 = ", model_path)
         self.model = models.load_model(model_path, backbone_name='resnet50')
         self.labels_to_names = {0: 'pastille'}
 
