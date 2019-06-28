@@ -10,3 +10,8 @@ eurosilicone-reader.py : acquisition app (saves chips to /var/eurosilicone/acqus
 
 uploader.py : will upload acquisitions to Azure (use this in a CRON)
 
+
+## Wifi access
+
+ES / Asio*2912ES!$
+
