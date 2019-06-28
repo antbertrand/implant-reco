@@ -128,8 +128,8 @@ model.compile(
 
 
 # training parameters
-BATCH_SIZE = 32
-nb_epoch = 30
+BATCH_SIZE = 8
+nb_epoch = 50
 n_train_samples = len(train_generator) * BATCH_SIZE
 n_val_samples = len(validation_generator) * BATCH_SIZE
 

@@ -13,13 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
+"WESHHHHHHHHHs"
 import numpy as np
 import random
 import warnings
 
 import keras
-
+import cv2
 from ..utils.anchors import (
     anchor_targets_bbox,
     anchors_for_shape,
@@ -34,6 +34,7 @@ from ..utils.image import (
     resize_image,
 )
 from ..utils.transform import transform_aabb
+from ..utils.visualization import draw_annotations
 
 
 class Generator(keras.utils.Sequence):
@@ -44,10 +45,10 @@ class Generator(keras.utils.Sequence):
         self,
         transform_generator = None,
         batch_size=1,
-        group_method='ratio',  # one of 'none', 'random', 'ratio'
-        shuffle_groups=True,
-        image_min_side=800,
-        image_max_side=1333,
+        group_method='random',  # one of 'none', 'random', 'ratio'
+        shuffle_groups=False,
+        image_min_side=800, #800
+        image_max_side=1333, #1333
         transform_parameters=None,
         compute_anchor_targets=anchor_targets_bbox,
         compute_shapes=guess_shapes,
@@ -79,6 +80,7 @@ class Generator(keras.utils.Sequence):
         self.compute_shapes         = compute_shapes
         self.preprocess_image       = preprocess_image
         self.config                 = config
+        self.order = []
 
         # Define groups
         self.group_images()
@@ -90,6 +92,7 @@ class Generator(keras.utils.Sequence):
     def on_epoch_end(self):
         if self.shuffle_groups:
             random.shuffle(self.groups)
+        
 
     def size(self):
         """ Size of the dataset.
@@ -190,10 +193,12 @@ class Generator(keras.utils.Sequence):
             # apply transformation to image
             image = apply_transform(transform, image, self.transform_parameters)
 
+
             # Transform the bounding boxes in the annotations.
             annotations['bboxes'] = annotations['bboxes'].copy()
             for index in range(annotations['bboxes'].shape[0]):
                 annotations['bboxes'][index, :] = transform_aabb(transform, annotations['bboxes'][index, :])
+
 
         return image, annotations
 
@@ -218,7 +223,15 @@ class Generator(keras.utils.Sequence):
         """ Preprocess image and its annotations.
         """
         # preprocess the image
+        #draw1 = image.copy()
         image = self.preprocess_image(image)
+        #name = np.random.randint(0,500)
+        #draw2 = image.copy()
+        #draw_annotations(draw1, annotations, color=(0, 255, 0))
+        #draw_annotations(draw2, annotations, color=(0, 255, 0))
+        #cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}_1.png'.format(name), draw1)
+        #cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}_2.png'.format(name), draw2)
+
 
         # resize image
         image, image_scale = self.resize_image(image)
@@ -239,7 +252,11 @@ class Generator(keras.utils.Sequence):
         for index in range(len(image_group)):
             # preprocess a single group entry
             image_group[index], annotations_group[index] = self.preprocess_group_entry(image_group[index], annotations_group[index])
-
+            name = np.random.randint(0,500)
+            #draw = image_group[index].copy()
+            #annotations = annotations_group[index]
+            #draw_annotations(draw, annotations, color=(0, 255, 0))
+            #cv2.imwrite('/home/numericube/Documents/current_projects/gcaesthetics-implantbox/example_augmentation_train/{}.png'.format(name), draw)
         return image_group, annotations_group
 
     def group_images(self):
@@ -254,6 +271,7 @@ class Generator(keras.utils.Sequence):
 
         # divide into groups, one group = one batch
         self.groups = [[order[x % len(order)] for x in range(i, i + self.batch_size)] for i in range(0, len(order), self.batch_size)]
+        self.order = order
 
     def compute_inputs(self, image_group):
         """ Compute inputs for the network using an image_group.

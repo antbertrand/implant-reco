@@ -9,7 +9,7 @@ from gen_data import generate_chip
 
 
 
-def create_chips(dest_folder=".", n=200, side_length=224):
+def create_chips(dest_folder=".", n=1000, side_length=224):
     """ Create n artificial chips
     """
 
@@ -33,11 +33,11 @@ def create_chips(dest_folder=".", n=200, side_length=224):
         # Save the image
         if k<n*0.8:
             path_name = os.path.join(dest_folder, "train", "GENERATED_CHIP-{}.jpg".format(k))
-            file_name = "ann_train.csv"
+            file_name = "/storage/eurosilicone/ds_step4/gen_dataset/ann_train.csv"
 
         else:
-            path_name = os.path.join(dest_folder, "test", "GENERATED_CHIP-{}.jpg".format(k))
-            file_name = "ann_test.csv"
+            path_name = os.path.join(dest_folder, "val", "GENERATED_CHIP-{}.jpg".format(k))
+            file_name = "/storage/eurosilicone/ds_step4/gen_dataset/ann_val.csv"
 
         cv2.imwrite(path_name, chip)
         # Set all the data we need for annotation
@@ -73,8 +73,8 @@ def write_csv(data, file_name = "ann_all.csv"):
                 f.write(",".join([datum['path'], coord, datum["caracs"][i]]))
                 f.write("\n")
 
-with open("ann_train.csv", 'w'):
+with open("/storage/eurosilicone/ds_step4/gen_dataset/ann_train.csv", 'w'):
     pass
-with open("ann_test.csv", 'w'):
+with open("/storage/eurosilicone/ds_step4/gen_dataset/ann_val.csv", 'w'):
     pass
-create_chips(dest_folder='./split_dataset')
+create_chips(dest_folder='/storage/eurosilicone/ds_step4/gen_dataset/')

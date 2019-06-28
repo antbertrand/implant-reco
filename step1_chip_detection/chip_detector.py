@@ -26,9 +26,11 @@ import logging
 import numpy as np
 import cv2
 
-from model_updater import update_model
-from keras_retinanet import models
-from keras_retinanet.utils.image import preprocess_image, resize_image
+#from model_updater import update_model
+from model_updater import check_model_md5
+
+from .retinanet.keras_retinanet import models
+from .retinanet.keras_retinanet.utils.image import preprocess_image, resize_image
 
 
 
@@ -45,11 +47,14 @@ class ChipDetector():
     """
 
     def __init__(self,
-                 model_prefix='retinanet_step1_resnet50_inf'):
+                 model_name='retinanet_step1_resnet50_inf_20190605101500.h5'):
 
         # Checking if the used model is the best
-        model_path = update_model(abs_path, model_prefix)
+        #model_path = update_model(abs_path, model_prefix)
 
+        # Checking if the used model is the same as the one online
+        model_path = check_model_md5(abs_path, model_name)
+        print("MODEL1 = ", model_path)
         self.model = models.load_model(model_path, backbone_name='resnet50')
         self.labels_to_names = {0: 'pastille'}
 

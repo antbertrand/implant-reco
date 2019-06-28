@@ -227,17 +227,18 @@ def create_generators(args, preprocess_image):
         transform_generator = random_transform_generator(
             min_rotation=-0.2,
             max_rotation=0.2,
-            min_translation=(-0.1, -0.1),
-            max_translation=(0.1, 0.1),
-            min_shear=-0.1,
-            max_shear=0.1,
+            min_translation=(-0.05, -0.05),
+            max_translation=(0.05, 0.05),
+            min_shear=0,
+            max_shear=0,
             min_scaling=(0.9, 0.9),
             max_scaling=(1.1, 1.1),
             flip_x_chance=0,
             flip_y_chance=0,
         )
     else:
-        transform_generator = random_transform_generator(flip_x_chance=0.5)
+        print("No random transform ??")
+        transform_generator = random_transform_generator(flip_x_chance=0)
 
     if args.dataset_type == 'coco':
         # import here to prevent unnecessary dependency on cocoapi

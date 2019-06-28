@@ -202,7 +202,6 @@ def run(generator, args, anchor_params):
                 draw_boxes(image, annotations['bboxes'][max_indices[positive_indices], :], (0, 255, 0))
 
         cv2.imshow('Image', image)
-        cv2.imwrite('/storage/eurosilicone/ds_step4/image_debug.png', image)
         if cv2.waitKey() == ord('q'):
             return False
     return True

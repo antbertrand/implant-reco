@@ -34,7 +34,8 @@ import imutils
 import cv2
 
 
-from model_updater import update_model
+#from model_updater import update_model
+from model_updater import check_model_md5
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -68,13 +69,17 @@ class OrientationFixer():
     """
 
     def __init__(self,
-                 model_prefix='rotnet_step3_resnet50_'):
+                 model_name='rotnet_step3_resnet50_20190606005100.hdf5'):
 
         # Checking if the used model is the best
-        model_path = update_model(abs_path, model_prefix)
+        #model_path = update_model(abs_path, model_prefix)
+
+        # Checking if the used model is the same as the one online
+        model_path = check_model_md5(abs_path, model_name)
 
         # Load model
         self.model = load_model(model_path, custom_objects={'angle_error': angle_error})
+
 
     def classify_angle(self, im):
         """Classify an image (np array or keras array)

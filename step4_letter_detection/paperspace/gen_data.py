@@ -11,7 +11,7 @@ import random
 import cv2
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 
-from deterioration import add_parallel_light
+from deterioration import add_parallel_light, noisy
 
 
 BG_PATH = './backgrounds/'
@@ -23,7 +23,7 @@ overlay_t = cv2.imread(CARAC_PATH + 'letter_4.png', -
                        1)  # -1 loads with transparency
 
 
-print(overlay_t.shape)
+#print(overlay_t.shape)
 
 
 def overlay_caracter(background_img, caracter_t, x, y, overlay_size=None):
@@ -186,15 +186,15 @@ def generate_letter(letter, angle=0):
 
 def print_text(dispo, im):
 
-    letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    numbers = '0123456789'
+    letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/'
+    #numbers = '0123456789'
     [width, height] = im.size
     ratio_line = [0.42, 0.60, 0.75]
     boxes = []
     caracs = []
     im = im.convert("RGB")
     im2 = np.array(im)
-
+    #print("IMMM", im2.shape)
 
     for index, line in enumerate(dispo):
 
@@ -221,16 +221,16 @@ def print_text(dispo, im):
             x = start_offset + width_carac * index2
 
             caracter_t, letters_size = generate_letter(carac)
-            #caracter_t.save('./carac.png')
+            caracter_t.save('./carac.png')
 
             #print(im.mode)
             im.paste(caracter_t, (x, y), caracter_t)
 
             caracter_t_cv = np.array(caracter_t)
-            #cv2.imwrite('./carac_cv.png', caracter_t_cv)
+            cv2.imwrite('./carac_cv.png', caracter_t_cv)
 
 
-            print(caracter_t_cv.shape)
+            #print(caracter_t_cv.shape)
             channels = cv2.split(caracter_t_cv)
             (x0 , y0 ,w ,h) = cv2.boundingRect(channels[3])
             #x_correc = x + int((letters_size[0] - w)/2) - x0
@@ -239,7 +239,7 @@ def print_text(dispo, im):
             b = y0 + y
             #box = [x_correc, y_correc, x_correc+w, y_correc+h]
             box = [ a, b, a+w, b+h]
-            print(box)
+            #print(box)
             boxes.append(box)
             caracs.append(carac)
 
@@ -259,13 +259,13 @@ def generate_chip():
                     ['nn/nnnll'],  # 'nnl/nnncc','nnl/nnncc','lln/nnncc',],
                     ['lnnnn', ]]
 
-    dispositions2 = [['lnll', ],
-                     ['nnllnnll'],  # 'nnl/nnncc','nnl/nnncc','lln/nnncc',],
-                     ['llnn', ]]
+    dispositions2 = [['lllll', ],
+                     ['llllllll'],  # 'nnl/nnncc','nnl/nnncc','lln/nnncc',],
+                     ['lllll', ]]
     n = random.randint(0, 3)
 
     # Randomly choose dispo
-    dispo = dispositions
+    dispo = dispositions2
     #dispo[1] = [dispositions[1][n]]
 
     # Randomly choose background
@@ -277,16 +277,17 @@ def generate_chip():
     chip_cv = np.array(chip)
 
     #To print boxes on image
-    #for box in boxes:
-    #    cv2.rectangle(chip_cv,(box[0],box[1]),(box[2],box[3]),(0,255,0),2)
+    for box in boxes:
+        cv2.rectangle(chip_cv,(box[0],box[1]),(box[2],box[3]),(0,255,0),2)
 
     # Add deteriorations
-    #chip_final, _ = add_parallel_light(chip)
-    chip_final = chip_cv
-    #print(chip.shape)
+    chip_final, _ = add_parallel_light(chip)
+    chip_final = noisy('gauss', chip_final)
+    chip_final = noisy('s&p', chip_final)
+
     #cv2.imwrite('./CHIP.png', chip_final)
 
     return chip_final, boxes, caracs
 
 
-#generate_chip()
+generate_chip()

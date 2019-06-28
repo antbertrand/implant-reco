@@ -11,7 +11,7 @@ import random
 import cv2
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 
-from deterioration import add_parallel_light
+from deterioration import add_parallel_light, noisy
 
 
 BG_PATH = './backgrounds/'
@@ -186,8 +186,8 @@ def generate_letter(letter, angle=0):
 
 def print_text(dispo, im):
 
-    letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    numbers = '0123456789'
+    letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/'
+    #numbers = '0123456789'
     [width, height] = im.size
     ratio_line = [0.42, 0.60, 0.75]
     boxes = []
@@ -259,13 +259,13 @@ def generate_chip():
                     ['nn/nnnll'],  # 'nnl/nnncc','nnl/nnncc','lln/nnncc',],
                     ['lnnnn', ]]
 
-    dispositions2 = [['lnll', ],
-                     ['nnllnnll'],  # 'nnl/nnncc','nnl/nnncc','lln/nnncc',],
-                     ['llnn', ]]
+    dispositions2 = [['lllll', ],
+                     ['llllllll'],  # 'nnl/nnncc','nnl/nnncc','lln/nnncc',],
+                     ['lllll', ]]
     n = random.randint(0, 3)
 
     # Randomly choose dispo
-    dispo = dispositions
+    dispo = dispositions2
     #dispo[1] = [dispositions[1][n]]
 
     # Randomly choose background
@@ -277,16 +277,17 @@ def generate_chip():
     chip_cv = np.array(chip)
 
     #To print boxes on image
-    #for box in boxes:
-    #    cv2.rectangle(chip_cv,(box[0],box[1]),(box[2],box[3]),(0,255,0),2)
+    for box in boxes:
+        cv2.rectangle(chip_cv,(box[0],box[1]),(box[2],box[3]),(0,255,0),2)
 
     # Add deteriorations
-    #chip_final, _ = add_parallel_light(chip)
-    chip_final = chip_cv
-    #print(chip.shape)
-    #cv2.imwrite('./CHIP.png', chip_final)
+    chip_final, _ = add_parallel_light(chip)
+    chip_final = noisy('gauss', chip_final)
+    chip_final = noisy('s&p', chip_final)
+
+    cv2.imwrite('./CHIP.png', chip_final)
 
     return chip_final, boxes, caracs
 
 
-#generate_chip()
+generate_chip()

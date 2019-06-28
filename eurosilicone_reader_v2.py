@@ -29,19 +29,12 @@ import time
 
 import cv2
 
-import numpy as np
-import detection_instance
-import imutils
 
-from utils import detect_text, get_circles, microsoft_detection_text
-from PIL import Image, ImageTk
-from threading import Thread
 
 from step1_chip_detection import chip_detector
 from step2_precise_circle import better_circle
 from step3_angle_correction import orientation_fixer
 from step4_letter_detection import caracter_detector
-import yolo_text
 
 abs_path = os.path.dirname(__file__)
 
@@ -55,54 +48,7 @@ class EurosiliconeReader(object):
     )
 
 
-    def get_chip_angle(self, img_chip):
-        """Return chip angle OR None if no text has been found.
-        """
-        # Opencv to PILLOW image
-        img_chip_pil = Image.fromarray(img_chip)
-        img_chip_pil_rotate = img_chip_pil.copy()
-
-        # init array results
-        best_scores = np.array([0, 0, 0], dtype=float)
-        best_boxes = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
-        best_deg = np.array([0, 0, 0], dtype=int)
-
-        # Check every image rotate, with 10 deg step
-        best_score = 0.0
-        got_it = False
-        for deg in range(0, 360, 10):
-            # Rotate image
-            img_chip_pil_rotate = img_chip_pil.rotate(deg)
-
-            # Inference function. We want to detect THREE lines of text so we ignore if we have less than that.
-            # Then we compute the best score and keep it
-            is_detected, out_boxes, out_scores, out_classes = self.text_detection.detect_image(
-                img_chip_pil_rotate
-            )
-            if len(out_scores) < 2:  # Ok, we authorize 2 lines
-                continue
-            got_it = True
-            sum_scores = np.sum(out_scores)
-            print(
-                "Deg {}: {}, {}".format(
-                    deg,
-                    sum_scores,
-                    self.text_detection.detect_image(img_chip_pil_rotate),
-                )
-            )
-
-            # Keep only the best angle
-            if sum_scores > best_score:
-                best_score = sum_scores
-                best_deg = np.array([deg, deg, deg], dtype=int)
-
-        # Display some information about what we detected
-        if not got_it:
-            print("NO TEXT DETECTED")
-            return None
-        print("BEST ANGLE: {}".format(best_deg))
-        return best_deg[0]
-
+    
     def simulate(self,):
         """Here instead of being in the loop of the camera taking pictures,
         we loop on a folder and process every image that is copied into it."""

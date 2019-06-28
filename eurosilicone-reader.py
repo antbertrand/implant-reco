@@ -225,14 +225,17 @@ class EurosiliconeReader(object):
 
         # Start detectors
         self.past_detection = yolo.YOLO()
-        self.text_detection = yolo_text.YOLO()
-        self.char_detection = yolo_char.YOLO()
+        #self.text_detection = yolo_text.YOLO()
+        #self.char_detection = yolo_char.YOLO()
         ChipD = chip_detector.ChipDetector()
         OrienF = orientation_fixer.OrientationFixer()
         CaracD = caracter_detector.CaracDetector()
 
         # Connect to keyboard
         kbd = keyboard.Keyboard()
+
+        # Keep track of the previous barcode
+        previous_text = None
 
         # Until death stikes, we read images continuously.
         while True:
@@ -311,11 +314,17 @@ class EurosiliconeReader(object):
             Image.fromarray(outlined_text).save(output_fn)
             text = "\t".join(lines)
             print("    NUMERO DE SERIE: {}".format(" ".join(lines)))
-            kbd.send(text)
-            print("      [TIME] Temps prise de vue :       %f" % end_capture - start_subcycle)
-            print("      [TIME] Temps détection pastille : %f" % end_chip - start_chip)
-            print("      [TIME] Temps rotation :           %f" % end_orientation - start_orientation)
-            print("      [TIME] Temps OCR :                %f" % end_ocr - start_ocr)
+            print("      [TIME] Temps prise de vue :       %.4f" % (end_capture - start_subcycle))
+            print("      [TIME] Temps détection pastille : %.4f" % (end_chip - start_chip))
+            print("      [TIME] Temps rotation :           %.4f" % (end_orientation - start_orientation))
+            print("      [TIME] Temps OCR :                %.4f" % (end_ocr - start_ocr))
+
+            # Send text to keyboard *if and only if* it's different from the previous one
+            if text == previous_text:
+                print("    [SAME AS PREVIOUS CODE, WE DON'T SEND IT]")
+            else:
+                kbd.send(text)
+            previous_text = text
             time.sleep(1)
 
 
