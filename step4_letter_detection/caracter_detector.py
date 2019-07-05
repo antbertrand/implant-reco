@@ -86,6 +86,33 @@ class CaracDetector():
         cv2.putText(image, caption, (b[0], b[1] - 10),
                     cv2.FONT_HERSHEY_PLAIN, 4, (0, 255, 255), 1)
 
+
+
+    def active_labeler(self, im_name, infos):
+        null = None
+
+        label_spvly = {"tags": [], "description": "",
+                       "objects": [], "size": {"height": 0, "width": 0}}
+
+        for infos_carac in infos:
+            carac = {"description": "", "bitmap": null, "tags": [
+                {"name": "", "value": null}], "classTitle": "character", "points": {"exterior": [[], []], "interior": []}}
+
+            # Changing labels
+            carac["tags"][0]["name"] = self.label_to_names[infos_carac[2]]
+
+            # Changing coordinates
+            carac["points"]["exterior"] = [infos[0:1], infos_carac[2:3]]
+
+            label_spvly["objects"].append(carac)
+
+        OUPUT_PATH = "/home/numericube/Documents/current_projects/gcaesthetics-implantbox/tests/ann/"
+        with open(OUTPUT_PATH + im_name + '.json', 'w') as f:
+            f.write(label_spvly)
+
+
+            
+
     def carac_detection(self, im, im_name):
         """Detects the caracters on an image.
 
@@ -234,27 +261,7 @@ class CaracDetector():
 
         return draw, lines
 
-    def active_labeler(self, im_name, infos):
-        null = None
 
-        label_spvly = {"tags": [], "description": "",
-                       "objects": [], "size": {"height": 0, "width": 0}}
-
-        for infos_carac in infos:
-            carac = {"description": "", "bitmap": null, "tags": [
-                {"name": "", "value": null}], "classTitle": "character", "points": {"exterior": [[], []], "interior": []}}
-
-            # Changing labels
-            carac["tags"][0]["name"] = self.label_to_names[infos_carac[2]]
-
-            # Changing coordinates
-            carac["points"]["exterior"] = [infos[0:1], infos_carac[2:3]]
-
-            label_spvly["objects"].append(carac)
-
-        OUPUT_PATH = "/home/numericube/Documents/current_projects/gcaesthetics-implantbox/tests/ann/"
-        with open(OUTPUT_PATH + im_name + '.json', 'w') as f:
-            f.write(label_spvly)
 
 
 if __name__ == '__main__':
