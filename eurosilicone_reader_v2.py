@@ -48,7 +48,7 @@ class EurosiliconeReader(object):
     )
 
 
-    
+
     def simulate(self,):
         """Here instead of being in the loop of the camera taking pictures,
         we loop on a folder and process every image that is copied into it."""
@@ -126,7 +126,7 @@ class EurosiliconeReader(object):
                 start = time.time()
 
                 # Detecting the caracters
-                chip_step4, lines = CaracD.carac_detection(chip_step3)
+                chip_step4, lines = CaracD.carac_detection(chip_step3, img_name)
                 cv2.imwrite(chip4_path + im_name, chip_step4)
                 text = ''
                 for line in lines:
@@ -134,6 +134,8 @@ class EurosiliconeReader(object):
 
                 end = time.time()
                 print('Step4 inference time = ', end - start)
+
+
 
                 print(text)
 
