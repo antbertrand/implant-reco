@@ -227,12 +227,21 @@ def create_generators(args, preprocess_image):
         transform_generator = random_transform_generator(
             min_rotation=-0.2,
             max_rotation=0.2,
+<<<<<<< HEAD
             min_translation=(-0.1, -0.1),
             max_translation=(0.1, 0.1),
             min_shear=0,
             max_shear=0,
             min_scaling=(0.8, 0.8),
             max_scaling=(1.2, 1.2),
+=======
+            min_translation=(-0.05, -0.05),
+            max_translation=(0.05, 0.05),
+            min_shear=0,
+            max_shear=0,
+            min_scaling=(0.9, 0.9),
+            max_scaling=(1.1, 1.1),
+>>>>>>> 08bdb2bf0cc516068d8450848fc36095160d0906
             flip_x_chance=0,
             flip_y_chance=0,
         )
@@ -281,7 +290,6 @@ def create_generators(args, preprocess_image):
             validation_generator = CSVGenerator(
                 args.val_annotations,
                 args.classes,
-                transform_generator=transform_generator,
                 **common_args
             )
         else:

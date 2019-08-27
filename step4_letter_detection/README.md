@@ -1,6 +1,6 @@
-# Chip detection
+# Caracter Detection
 
-The goal here is to detect precisly where the chip is on the implant.
+The goal here is to detect the caracters (37 different types) on the chip.
 
 ## Getting Started
 
@@ -11,58 +11,31 @@ The implementation used is an implementation of RetinaNet in Keras : [keras_reti
 To test the detection on some images, clone this repo on your machine.
 
 
+## Using it
 
 
-#### DL the dataset
+## Re-training it
 
-The dataset is stored on Azure, the URL of the blob container is the following :
-*https://eurosilicone.blob.core.windows.net/dsdetection*
+### 1. Dataset preparation
 
-This will give you a dataset split in three : a train, validation and test set. The split has been done manually, to make sure very similar images do not end up in different splits, which would distort the results.
+#### Images
+The dataset we will use is the dataset obtained after step3, which is the angle correction.
+We will use as the train set the correctly orientated dataset, that comes from the labels, not from the step3 output.
+For the test and validation set, the best would be to create two versions of them. One that contains images with the chip correctly detected and orientated ( that can be built from the labels), which would be used to evaluate independantly this step, and the other that contains the images as they come out of step3, which would be used to evaluate all the process globally.
 
-Split                      | Train    |     Validation   |     Test   
-------------------------------|-------------|-------------|-------------------|
-Nb of images              |   256         |   52     |   40           
+Doing this implies doing two labelling of the test and val sets. For now, we used a dataset where the validation set has the true orientations and the test set that is the output of the previous steps.
 
-You should also have an annotation folder in which there are the info of the true bouding boxes for all the images. This is only useful if you want to train a new network.
-
-#### Downloading the models
-
-We used a RetinaNet, once trained it needs to be converted to an inference model before being able to be tested on new images.
-
-The inference model is stored on Azure :
-*https://eurosilicone.blob.core.windows.net/weights/retinanet_detection_resnet50_inf.h5*
-
-The raw model can be used to continue training with the adding of new images. If needed is also stored on Azure :
-*https://eurosilicone.blob.core.windows.net/weights/retinanet_detection_resnet50.h5*
-
-##### **In order to use the exact same commands showed later on, please place the downloaded models and dataset in their respecting folders of the repository.**
-
-### Prerequisites
-
-Things needed to run the detection :
-
-* [Keras](https://www.pyimagesearch.com/2016/11/14/installing-keras-with-tensorflow-backend/)
-* [OpenCV2](https://pypi.org/project/opencv-python/)
+In order to use the same commands that will be used later, you should place the 3 splits of the dataset, in *dataset/ds_step4_caracter_detector* in their corresponding folder, in *img_train* / *img_val* / *img_test*.     
 
 
+<br />
 
-<br /><br />
+#### Annotations
 
-## Testing
-
-To test the network use the chip_detector.py file.
-
-## Usage
-
-To train it on a custom dataset, a CSV file can be used as a way to pass the data.
-See below for more details on the format of these CSV files.
-
-### CSV datasets
-The `CSVGenerator` provides an easy way to define your own datasets.
+The `CSVGenerator` provides an easy way to define our own datasets.
 It uses two CSV files: one file containing annotations and one file containing a class name to ID mapping.
 
-#### Annotations format
+###### Annotations format
 The CSV file with annotations should contain one annotation per line.
 Images with multiple bounding boxes should use one row per bounding box.
 Note that indexing for pixel values starts at 0.
@@ -78,39 +51,23 @@ add an annotation where `x1`, `y1`, `x2`, `y2` and `class_name` are all empty:
 path/to/image.jpg,,,,,
 ```
 
-A full example:
-```
-/data/imgs/img_001.jpg,837,346,981,456,cow
-/data/imgs/img_002.jpg,215,312,279,391,cat
-/data/imgs/img_002.jpg,22,5,89,84,bird
-/data/imgs/img_003.jpg,,,,,
-```
-
-This defines a dataset with 3 images.
-`img_001.jpg` contains a cow.
-`img_002.jpg` contains a cat and a bird.
-`img_003.jpg` contains no interesting objects/animals.
-
-
-#### Class mapping format
+###### Class mapping format
 The class name to ID mapping file should contain one mapping per line.
 Each line should use the following format:
 ```
 class_name,id
 ```
+##### Annotation conversion from supervisely
+You should have labelized the whole dataset. If you did it on supervisly, we need to convert hem to the csv format described previously.
 
-Indexing for classes starts at 0.
-Do not include a background class as it is implicit.
+To do so use the notebook creating_labels.ipynb in the ds_step4_caracter_detector folder. (TODO: do it cleanly in a independant .py file)
 
-For example:
-```
-cow,0
-cat,1
-bird,2
-```
 
-## Training
-A model is trained using the keras_retinanet/bin/train.py script.
+<br />
+
+### 2. Training
+<br />
+The model is trained using the keras_retinanet/bin/train.py script.
 You have to run the script directly from inside the folder `retinanet`.
 
 Every parameters is given through the command line as arguments. The following lists all the different arguments that can be given to the train.py script :
@@ -156,39 +113,38 @@ parser.add_argument('--max-queue-size', help='Queue length for multiprocessing w
 
 <br />
 
-The command we used to train the model is the following:
+The command we used to train the model on the macchiato is the following:
 
 ```shell
-keras_retinanet/bin/train.py --batch-size=1 --random-transform --compute-val-loss --steps=300 --weighted-average csv ../ann_train.csv ../class_mapping.csv --val-annotations ../ann_val.csv
+keras_retinanet/bin/train.py --batch-size=1 --lr=1e-4 --random-transform --compute-val-loss --steps=260 --weighted-average --snapshot-path ./snapshots csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_train.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/class_mapping.csv --val-annotations /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_val.csv
 ```
-
-#### Changing backbone architecture
-The default backbone is `resnet50`. You can change this using the `--backbone=xxx` argument in the running script.
-`xxx` can be one of the backbones in resnet models (`resnet50`, `resnet101`, `resnet152`), mobilenet models (`mobilenet128_1.0`, `mobilenet128_0.75`, `mobilenet160_1.0`, etc), densenet models or vgg models. The different options are defined by each model in their corresponding python scripts (`resnet.py`, `mobilenet.py`, etc).
 
 
 #### Converting a training model to inference model
-The training procedure of `keras-retinanet` works with *training models*. These are stripped down versions compared to the *inference model* and only contains the layers necessary for training (regression and classification values). If you wish to do inference on a model (perform object detection on an image), you need to convert the trained model to an inference model. This is done as follows:
+The training procedure of `keras-retinanet` works with *training models*. These are stripped down versions compared to the *inference model* and only contains the layers necessary for training (regression and classification values). Before using the model to perform the detetion on an image, we need to convert the trained model to an inference model. This is done as follows:
 
 ```shell
 # Running directly from the repository:
-keras_retinanet/bin/convert_model.py /path/to/training/model.h5 /path/to/save/inference/model.h5
-
+keras_retinanet/bin/convert_model.py /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/model_name.h5 /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/model_name_inf.h5 --no-class-specific-filter
 ```
+The `--no-class-specific-filter` argument is important as it will let the nms filter remove overlapping bboxes from different classes, as in our case, two caracters will never be overlapping.
+
+<br />
 
 
-
-
-## Debugging
-Creating your own dataset does not always work out of the box. There is a [`debug.py`](https://github.com/fizyr/keras-retinanet/blob/master/keras_retinanet/bin/debug.py) tool to help find the most common mistakes.
+### 3. Debugging (if needed)
+<br />
+If things do not work as expected there is a [`debug.py`](https://github.com/fizyr/keras-retinanet/blob/master/keras_retinanet/bin/debug.py) tool to help find the most common mistakes.
 
 Particularly helpful is the `--annotations` flag which displays your annotations on the images from your dataset. Annotations are colored in green when there are anchors available and colored in red when there are no anchors available. If an annotation doesn't have anchors available, it means it won't contribute to training. It is normal for a small amount of annotations to show up in red, but if most or all annotations are red there is cause for concern. The most common issues are that the annotations are too small or too oddly shaped (stretched out).
 
+```shell
+keras_retinanet/bin/debug.py --annotations csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_train_large.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/class_mapping.csv
+```
 
-
-
-## Model evaluation
-
+<br />
+### 4. Evaluating the new models
+<br />
 The script `evaluate.py` can be used to evaluate a model.
 It computes the mAP on the whole test set and other useful metrics.
 With the argument `--save-path`, the images with the true and predicted bouding boxes can be saved in a specific folder.
@@ -213,10 +169,18 @@ parser.add_argument('--config',           help='Path to a configuration paramete
 
 The command we used to evaluate our model is the following :
 ```bash
-keras_retinanet/bin/evaluate.py --save-path ~/Documents/NumeriCube/eurosilicone/dataset/resized/mixed/results csv ../ann_test.csv ../class_mapping.csv ../models/3rd/resnet50_csv_07_inf.h5
+keras_retinanet/bin/evaluate2.py --score-threshold=0.48 --save-path /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step5_evaluation/test_im csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_val.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/class_mapping.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step4_letter_detection/models/model_name_inf.h5
 ```
 
-The models are evaluated on an holdout Test set.
-### Current results of the model :
+The models are chosen on their performances on the Validation set.
 
-mAP on Test Set : 96,6%
+Model version               | mAP (weighted average)   |  mAP (average) |     Nb of codes read  
+------------------------------|-------------|-------------|-------------------|
+retinanet_step4_resnet50_inf_20190605101500             |   69.28%         |   52     |   18 / 51  
+
+
+The models are then evaluated on an holdout Test set.
+
+Model version               | mAP (weighted average)   |  mAP (average) |     Code   
+------------------------------|-------------|-------------|-------------------|
+Nb of images              |   256         |   52     |   40  

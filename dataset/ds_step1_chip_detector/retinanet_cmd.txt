@@ -1,0 +1,7 @@
+keras_retinanet/bin/train.py --batch-size=1 --random-transform --compute-val-loss --steps=300 --weighted-average csv ../ann_train.csv ../class_mapping.csv --val-annotations ../ann_val.csv 
+
+keras_retinanet/bin/debug.py csv ~/Documents/NumeriCube/eurosilicone/dataset/resized_x10/2/ann_test.csv ~/Documents/NumeriCube/eurosilicone/dataset/resized_x10/2/class_mapping.csv
+
+keras_retinanet/bin/convert_model.py --backbone=resnet50 ~/Documents/NumeriCube/eurosilicone/pastille/detection/retinanet/models/3rd/resnet50_csv_07.h5 ~/Documents/NumeriCube/eurosilicone/pastille/detection/retinanet/models/3rd/resnet50_csv_07_inf.h5
+
+keras_retinanet/bin/evaluate.py --save-path ~/Documents/NumeriCube/eurosilicone/dataset/resized/mixed/results csv ../ann_test.csv ../class_mapping.csv ../models/3rd/resnet50_csv_07_inf.h5 

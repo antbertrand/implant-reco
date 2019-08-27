@@ -16,7 +16,8 @@ import logging
 import re
 from datetime import datetime as dt
 from azure.storage.blob import BlockBlobService
-
+import hashlib
+import base64
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -100,3 +101,59 @@ def update_model(abs_path,
         )
 
     return model_path + newest_model_name
+
+def _read_file_md5(fname):
+    """Read md5 from file
+    Taken from: https://stackoverflow.com/questions/3431825/generating-an-md5-checksum-of-a-file
+    """
+    hash_md5 = hashlib.md5()
+    with open(fname, "rb") as fcontent:
+        for chunk in iter(lambda: fcontent.read(4096), b""):
+            hash_md5.update(chunk)
+    return base64.b64encode(hash_md5.digest()).decode("ascii")
+
+
+def check_model_md5(abs_path,
+                    blob_name,
+                    container_name="weights",
+                    model_connection_string="BlobEndpoint=https://eurosilicone.blob.core.windows.net/;QueueEndpoint=https://eurosilicone.queue.core.windows.net/;FileEndpoint=https://eurosilicone.file.core.windows.net/;TableEndpoint=https://eurosilicone.table.core.windows.net/;SharedAccessSignature=sv=2018-03-28&ss=bfqt&srt=sco&sp=rwdlacup&se=2022-05-16T17:59:47Z&st=2019-05-16T09:59:47Z&spr=https&sig=svg3ojRIIKLE7%2Bje2e5Rz0TRibz5wasE75HmljLL67A%3D",
+                    ):
+    """Pre-load model if not already on disk
+    """
+    # Path where is stored the currently used model
+    model_path = os.path.join(abs_path, "models", blob_name)
+
+    # Check if file exists / is fresh
+    download_it = True
+    if os.path.isfile(model_path):
+
+        # File exists? Retreive online md5 from Azure
+        target_blob_service = BlockBlobService(
+            connection_string=model_connection_string
+        )
+        blob = target_blob_service.get_blob_properties(
+            container_name=container_name,
+            blob_name=blob_name,
+        )
+        blob_md5 = blob.properties.content_settings.content_md5
+
+        # Read file md5 & compare
+        file_md5 = _read_file_md5(model_path)
+        if file_md5 == blob_md5:
+            download_it = False
+
+    # Download if necessary
+    if download_it:
+        # Create target path if necessary
+        os.makedirs(os.path.split(model_path)[0], exist_ok=True)
+
+        # Download
+        logger.info("Downloading latest model")
+        target_blob_service = BlockBlobService(
+            connection_string=model_connection_string)
+        target_blob_service.get_blob_to_path(
+            container_name=container_name,
+            blob_name=blob_name,
+            file_path=model_path,
+        )
+    return model_path
