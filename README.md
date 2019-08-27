@@ -12,6 +12,10 @@ eurosilicone-reader.py : acquisition app (saves chips to /var/eurosilicone/acqus
 uploader.py : will upload acquisitions to Azure (use this in a CRON)
 
 
+## Wifi access
+
+ES / Asio*2912ES!$
+
 ## Getting Started
 
 There are 4 distinct steps in the processing of an input image :
@@ -63,3 +67,4 @@ Things needed to run the detection :
 
 * [Keras](https://www.pyimagesearch.com/2016/11/14/installing-keras-with-tensorflow-backend/)
 * [OpenCV2](https://pypi.org/project/opencv-python/)
+
