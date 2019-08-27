@@ -87,7 +87,7 @@ class EurosiliconeReader(object):
 
                 # STEP 1: we detect the chip
                 start = time.time()
-                box, score = ChipD.detect_chip(img_full)
+                box, score = ChipD.detect_chip(img_full, im_name)
 
                 # Cropping the chip
                 if box is None:

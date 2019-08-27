@@ -22,6 +22,7 @@ __status__ = "Developement"
 import os
 import time
 import logging
+import json
 
 import numpy as np
 import cv2
@@ -58,7 +59,7 @@ class ChipDetector():
         self.model = models.load_model(model_path, backbone_name='resnet50')
         self.labels_to_names = {0: 'pastille'}
 
-    def detect_chip(self, im):
+    def detect_chip(self, im, im_name):
         """Detect a chip an image.
 
         Parameters:
@@ -103,6 +104,9 @@ class ChipDetector():
 
         for box, score, label in zip(boxes[0], scores[0], labels[0]):
 
+            # Create supervisly labels from that prediction
+            self.active_labeler(im_name, box)
+
             #print("The confidence on the classification is of {}%".format(score * 100))
             return box, score
 
@@ -125,6 +129,33 @@ class ChipDetector():
         im_crop = im[box[1]:box[3], box[0]:box[2]]
 
         return im_crop
+
+    def active_labeler(self, im_name, box):
+        """
+        Creating labels from the predicitons that can be imported on supervisly
+        and corrected if needed
+        """
+        null = None
+
+        label_spvly = {"description": "", "tags": [],
+                       "size": {"height": 3648, "width": 5472},
+                       "objects": [],
+                       }
+
+        chip = {"description": "", "bitmap": null, "tags": [],
+                "classTitle": "pastille",
+                "points": {"exterior": [[], []], "interior": []}}
+
+        # Changing labels
+        chip["points"]["exterior"][0] = [box[0], box[1]]
+        chip["points"]["exterior"][1] = [box[2], box[3]]
+
+
+        label_spvly["objects"].append(chip)
+
+        OUTPUT_PATH = "/home/numericube/Documents/current_projects/gcaesthetics-implantbox/tests/ann/step1/"
+        with open(OUTPUT_PATH + im_name + '.json', 'w') as json_file:
+            json.dump(label_spvly, json_file)
 
 
 if __name__ == '__main__':

@@ -104,7 +104,7 @@ class CaracDetector():
 
             # Changing coordinates
             box = infos_carac[0]
-            
+
             box[0] *= size_chip[1]/800
             box[2] *= size_chip[1]/800
             box[1] *= size_chip[0]/800
@@ -117,12 +117,12 @@ class CaracDetector():
 
             label_spvly["objects"].append(carac)
 
-        OUTPUT_PATH = "/home/numericube/Documents/current_projects/gcaesthetics-implantbox/tests/ann/"
+        OUTPUT_PATH = "/home/numericube/Documents/current_projects/gcaesthetics-implantbox/tests/ann/step4/"
         with open(OUTPUT_PATH + im_name + '.json', 'w') as json_file:
             json.dump(label_spvly, json_file)
 
 
-            
+
 
     def carac_detection(self, im, im_name):
 
