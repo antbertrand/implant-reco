@@ -72,6 +72,7 @@ class EurosiliconeReader(object):
             files = os.listdir(input_path)
             if files != []:
                 im_name = files[0]
+                print(im_name)
                 # On the final program. This should go after the part where the CHIP image
                 # is saved from the camera.
                 # img_chip.save(output_fn)

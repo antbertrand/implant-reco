@@ -19,6 +19,7 @@ import cv2
 import numpy as np
 
 import keras
+import json
 
 # set tf backend to allow memory to grow, instead of claiming everything
 import tensorflow as tf
@@ -88,32 +89,43 @@ class CaracDetector():
 
 
 
-    def active_labeler(self, im_name, infos):
+    def active_labeler(self, im_name, infos, size_chip):
         null = None
 
         label_spvly = {"tags": [], "description": "",
-                       "objects": [], "size": {"height": 0, "width": 0}}
+                       "objects": [], "size": {"height": size_chip[0], "width": size_chip[1]}}
 
         for infos_carac in infos:
             carac = {"description": "", "bitmap": null, "tags": [
-                {"name": "", "value": null}], "classTitle": "character", "points": {"exterior": [[], []], "interior": []}}
+                {"name": "", "value": null}], "classTitle": "caracter", "points": {"exterior": [[], []], "interior": []}}
 
             # Changing labels
-            carac["tags"][0]["name"] = self.label_to_names[infos_carac[2]]
+            carac["tags"][0]["name"] = self.labels_to_names[infos_carac[2]]
 
             # Changing coordinates
-            carac["points"]["exterior"] = [infos[0:1], infos_carac[2:3]]
+            box = infos_carac[0]
+            
+            box[0] *= size_chip[1]/800
+            box[2] *= size_chip[1]/800
+            box[1] *= size_chip[0]/800
+            box[3] *= size_chip[0]/800
+
+            box = list(map(float, list(map(int, box))))
+
+            carac["points"]["exterior"] = [box[0:2], box[2:4]]
+
 
             label_spvly["objects"].append(carac)
 
-        OUPUT_PATH = "/home/numericube/Documents/current_projects/gcaesthetics-implantbox/tests/ann/"
-        with open(OUTPUT_PATH + im_name + '.json', 'w') as f:
-            f.write(label_spvly)
+        OUTPUT_PATH = "/home/numericube/Documents/current_projects/gcaesthetics-implantbox/tests/ann/"
+        with open(OUTPUT_PATH + im_name + '.json', 'w') as json_file:
+            json.dump(label_spvly, json_file)
 
 
             
 
     def carac_detection(self, im, im_name):
+
         """Detects the caracters on an image.
 
         Parameters:
@@ -130,6 +142,8 @@ class CaracDetector():
         labels : list of int
         Label number. Convert it to the label name with labels_to_names
         """
+        # SIZE IM
+        size_chip = im.shape
 
         # Resizing the image
         WIDTH = 800
@@ -257,7 +271,7 @@ class CaracDetector():
             infos_final.append(infos_carac)
             lines[2] += self.labels_to_names[infos_carac[2]]
 
-        active_labeler(im_name, infos_final)
+        self.active_labeler(im_name, infos_final, size_chip)
 
         return draw, lines
 
