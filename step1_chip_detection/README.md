@@ -166,7 +166,7 @@ parser.add_argument('--max-queue-size', help='Queue length for multiprocessing w
 
 <br />
 
-The command we used to train the model on the macchiato is the following:
+The parameters we used to train the model on the macchiato are in the following command:
 
 ```shell
 keras_retinanet/bin/train.py --batch-size=1 --lr=1e-4 --random-transform --compute-val-loss --steps=260 --weighted-average --snapshot-path ./snapshots csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_train.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/class_mapping.csv --val-annotations /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step4_caracter_detector/ann_val.csv
@@ -220,7 +220,7 @@ parser.add_argument('--image-max-side',   help='Rescale the image if the largest
 parser.add_argument('--config',           help='Path to a configuration parameters .ini file (only used with --convert-model).')
 ```
 
-The command we used to evaluate our model is the following :
+The parameters we used to evaluate our model are in the following commmand:
 ```bash
 keras_retinanet/bin/evaluate.py --score-threshold=0.2 csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step1_chip_detector/ann_test.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/dataset/ds_step1_chip_detector/class_mapping.csv /home/numericube/Documents/current_projects/gcaesthetics-implantbox/step1_chip_detection/models/retinanet_step1_resnet50_inf_20190605101500.h5
 ```
